@@ -1,0 +1,145 @@
+{"ip":"127.0.0.5","timestamp":"2026-10-24T21:57:46.011842188Z","port":19022,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.2","timestamp":"2026-10-24T21:57:46.012562827Z","port":19080,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.4","timestamp":"2026-10-24T21:57:46.989976013Z","port":19375,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.3","timestamp":"2026-10-24T21:57:51.000745872Z","port":19590,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.7","timestamp":"2026-10-24T21:57:51.003252887Z","port":19080,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.4","timestamp":"2026-10-24T21:57:52.992999041Z","port":19920,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.6","timestamp":"2026-10-24T21:57:53.998217605Z","port":19080,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.5","timestamp":"2026-10-24T21:57:54.994097058Z","port":19379,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.7","timestamp":"2026-10-24T21:57:54.994485297Z","port":19888,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.3","timestamp":"2026-10-24T21:57:54.995353626Z","port":19023,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.4","timestamp":"2026-10-24T21:57:54.996156215Z","port":19080,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.2","timestamp":"2026-10-24T21:57:55.98933991Z","port":19379,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.2","timestamp":"2026-10-24T21:57:55.990094378Z","port":19022,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.3","timestamp":"2026-10-24T21:57:56.991552725Z","port":19211,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.3","timestamp":"2026-10-24T21:57:56.992501193Z","port":19306,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.5","timestamp":"2026-10-24T21:57:56.994049289Z","port":19080,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.7","timestamp":"2026-10-24T21:58:22.990042166Z","port":19080,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.7","timestamp":"2026-10-24T21:58:22.990079636Z","port":19888,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.6","timestamp":"2026-10-24T21:58:22.990196096Z","port":19080,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.5","timestamp":"2026-10-24T21:58:22.990224036Z","port":19022,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.5","timestamp":"2026-10-24T21:58:22.990226346Z","port":19379,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.5","timestamp":"2026-10-24T21:58:22.990232716Z","port":19080,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.2","timestamp":"2026-10-24T21:58:22.990249636Z","port":19080,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.2","timestamp":"2026-10-24T21:58:22.990252076Z","port":19379,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.2","timestamp":"2026-10-24T21:58:22.990254156Z","port":19022,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.4","timestamp":"2026-10-24T21:58:22.990263906Z","port":19080,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.4","timestamp":"2026-10-24T21:58:22.990265526Z","port":19375,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.4","timestamp":"2026-10-24T21:58:22.990267386Z","port":19920,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.3","timestamp":"2026-10-24T21:58:22.990280526Z","port":19211,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.3","timestamp":"2026-10-24T21:58:22.990283906Z","port":19306,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.3","timestamp":"2026-10-24T21:58:22.990285506Z","port":19590,"protocol":"tcp","tls":false}
+{"ip":"127.0.0.3","timestamp":"2026-10-24T21:58:22.990287266Z","port":19023,"protocol":"tcp","tls":false}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.94SVN scan initiated Sat Oct 24 18:58:23 2026 as: /usr/bin/nmap -sT -sV -Pn -n -oX - -p 19022,19080,19379 127.0.0.2 127.0.0.5 -->
+<nmaprun scanner="nmap" args="/usr/bin/nmap -sT -sV -Pn -n -oX - -p 19022,19080,19379 127.0.0.2 127.0.0.5" start="1792879103" startstr="Sat Oct 24 18:58:23 2026" version="7.94SVN" xmloutputversion="1.05">
+<scaninfo type="connect" protocol="tcp" numservices="3" services="19022,19080,19379"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<host starttime="1792879103" endtime="1792879114"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="127.0.0.2" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="19022"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="ssh" product="OpenSSH" version="8.9p1 Ubuntu 3ubuntu0.4" extrainfo="Ubuntu Linux; protocol 2.0" ostype="Linux" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:8.9p1</cpe><cpe>cpe:/o:linux:linux_kernel</cpe></service></port>
+<port protocol="tcp" portid="19080"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="http" product="nginx" version="1.18.0" extrainfo="Ubuntu" ostype="Linux" method="probed" conf="10"><cpe>cpe:/a:igor_sysoev:nginx:1.18.0</cpe><cpe>cpe:/o:linux:linux_kernel</cpe></service></port>
+<port protocol="tcp" portid="19379"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="redis" product="Redis key-value store" method="probed" conf="10"/></port>
+</ports>
+<times srtt="176" rttvar="2863" to="100000"/>
+</host>
+<host starttime="1792879103" endtime="1792879114"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="127.0.0.5" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="19022"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="ssh" product="OpenSSH" version="8.9p1 Ubuntu 3ubuntu0.4" extrainfo="Ubuntu Linux; protocol 2.0" ostype="Linux" method="probed" conf="10"><cpe>cpe:/a:openbsd:openssh:8.9p1</cpe><cpe>cpe:/o:linux:linux_kernel</cpe></service></port>
+<port protocol="tcp" portid="19080"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="http" product="nginx" version="1.18.0" extrainfo="Ubuntu" ostype="Linux" method="probed" conf="10"><cpe>cpe:/a:igor_sysoev:nginx:1.18.0</cpe><cpe>cpe:/o:linux:linux_kernel</cpe></service></port>
+<port protocol="tcp" portid="19379"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="redis" product="Redis key-value store" method="probed" conf="10"/></port>
+</ports>
+<times srtt="303" rttvar="2911" to="100000"/>
+</host>
+<runstats><finished time="1792879114" timestr="Sat Oct 24 18:58:34 2026" summary="Nmap done at Sat Oct 24 18:58:34 2026; 2 IP addresses (2 hosts up) scanned in 11.27 seconds" elapsed="11.27" exit="success"/><hosts up="2" down="0" total="2"/>
+</runstats>
+</nmaprun>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.94SVN scan initiated Sat Oct 24 18:58:34 2026 as: /usr/bin/nmap -sT -sV -Pn -n -oX - -p 19023,19211,19306,19590 127.0.0.3 -->
+<nmaprun scanner="nmap" args="/usr/bin/nmap -sT -sV -Pn -n -oX - -p 19023,19211,19306,19590 127.0.0.3" start="1792879114" startstr="Sat Oct 24 18:58:34 2026" version="7.94SVN" xmloutputversion="1.05">
+<scaninfo type="connect" protocol="tcp" numservices="4" services="19023,19211,19306,19590"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<host starttime="1792879114" endtime="1792879120"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="127.0.0.3" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="19023"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="telnet" product="Linux telnetd" ostype="Linux" method="probed" conf="10"><cpe>cpe:/o:linux:linux_kernel</cpe></service></port>
+<port protocol="tcp" portid="19211"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="memcached" product="Memcached" method="probed" conf="10"><cpe>cpe:/a:memcached:memcached</cpe></service></port>
+<port protocol="tcp" portid="19306"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="mysql" product="MySQL" version="8.0.33-0ubuntu0.22.04.2" method="probed" conf="10"><cpe>cpe:/a:mysql:mysql:8.0.33-0ubuntu0.22.04.2</cpe></service></port>
+<port protocol="tcp" portid="19590"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="vnc" product="VNC" extrainfo="protocol 3.8" method="probed" conf="10"/></port>
+</ports>
+<times srtt="222" rttvar="2212" to="100000"/>
+</host>
+<runstats><finished time="1792879120" timestr="Sat Oct 24 18:58:40 2026" summary="Nmap done at Sat Oct 24 18:58:40 2026; 1 IP address (1 host up) scanned in 6.21 seconds" elapsed="6.21" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.94SVN scan initiated Sat Oct 24 18:58:40 2026 as: /usr/bin/nmap -sT -sV -Pn -n -oX - -p 19080,19375,19920 127.0.0.4 -->
+<nmaprun scanner="nmap" args="/usr/bin/nmap -sT -sV -Pn -n -oX - -p 19080,19375,19920 127.0.0.4" start="1792879120" startstr="Sat Oct 24 18:58:40 2026" version="7.94SVN" xmloutputversion="1.05">
+<scaninfo type="connect" protocol="tcp" numservices="3" services="19080,19375,19920"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<host starttime="1792879120" endtime="1792879126"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="127.0.0.4" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="19080"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="http" product="nginx" version="1.18.0" extrainfo="Ubuntu" ostype="Linux" method="probed" conf="10"><cpe>cpe:/a:igor_sysoev:nginx:1.18.0</cpe><cpe>cpe:/o:linux:linux_kernel</cpe></service></port>
+<port protocol="tcp" portid="19375"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="docker" product="Docker remote API" version="24.0.5" extrainfo="API 1.43" ostype="linux" method="probed" conf="10"><cpe>cpe:/a:docker:docker:24.0.5</cpe></service></port>
+<port protocol="tcp" portid="19920"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="http" product="Elasticsearch REST API" version="7.17.9" extrainfo="name: node-1; cluster: elasticsearch; Lucene 8.11.1" method="probed" conf="10"><cpe>cpe:/a:elasticsearch:elasticsearch:7.17.9</cpe></service></port>
+</ports>
+<times srtt="198" rttvar="2883" to="100000"/>
+</host>
+<runstats><finished time="1792879126" timestr="Sat Oct 24 18:58:46 2026" summary="Nmap done at Sat Oct 24 18:58:46 2026; 1 IP address (1 host up) scanned in 6.23 seconds" elapsed="6.23" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.94SVN scan initiated Sat Oct 24 18:58:46 2026 as: /usr/bin/nmap -sT -sV -Pn -n -oX - -p 19080 127.0.0.6 -->
+<nmaprun scanner="nmap" args="/usr/bin/nmap -sT -sV -Pn -n -oX - -p 19080 127.0.0.6" start="1792879126" startstr="Sat Oct 24 18:58:46 2026" version="7.94SVN" xmloutputversion="1.05">
+<scaninfo type="connect" protocol="tcp" numservices="1" services="19080"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<host starttime="1792879126" endtime="1792879133"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="127.0.0.6" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="19080"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="http" product="nginx" version="1.18.0" extrainfo="Ubuntu" ostype="Linux" method="probed" conf="10"><cpe>cpe:/a:igor_sysoev:nginx:1.18.0</cpe><cpe>cpe:/o:linux:linux_kernel</cpe></service></port>
+</ports>
+<times srtt="143" rttvar="5000" to="100000"/>
+</host>
+<runstats><finished time="1792879133" timestr="Sat Oct 24 18:58:53 2026" summary="Nmap done at Sat Oct 24 18:58:53 2026; 1 IP address (1 host up) scanned in 6.22 seconds" elapsed="6.22" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.94SVN scan initiated Sat Oct 24 18:58:53 2026 as: /usr/bin/nmap -sT -sV -Pn -n -oX - -p 19080,19888 127.0.0.7 -->
+<nmaprun scanner="nmap" args="/usr/bin/nmap -sT -sV -Pn -n -oX - -p 19080,19888 127.0.0.7" start="1792879133" startstr="Sat Oct 24 18:58:53 2026" version="7.94SVN" xmloutputversion="1.05">
+<scaninfo type="connect" protocol="tcp" numservices="2" services="19080,19888"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<host starttime="1792879133" endtime="1792879139"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="127.0.0.7" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="19080"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="http" product="nginx" version="1.18.0" extrainfo="Ubuntu" ostype="Linux" method="probed" conf="10"><cpe>cpe:/a:igor_sysoev:nginx:1.18.0</cpe><cpe>cpe:/o:linux:linux_kernel</cpe></service></port>
+<port protocol="tcp" portid="19888"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="http" product="Apache httpd" version="2.4.52" extrainfo="(Ubuntu)" method="probed" conf="10"><cpe>cpe:/a:apache:http_server:2.4.52</cpe></service></port>
+</ports>
+<times srtt="191" rttvar="3785" to="100000"/>
+</host>
+<runstats><finished time="1792879139" timestr="Sat Oct 24 18:58:59 2026" summary="Nmap done at Sat Oct 24 18:58:59 2026; 1 IP address (1 host up) scanned in 6.25 seconds" elapsed="6.25" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>

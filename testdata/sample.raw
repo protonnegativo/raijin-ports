@@ -1,0 +1,165 @@
+{"ip":"10.0.0.1","timestamp":"2026-10-24T12:00:00Z","port":22,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.1","timestamp":"2026-10-24T12:00:00Z","port":80,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.1","timestamp":"2026-10-24T12:00:00Z","port":443,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.2","timestamp":"2026-10-24T12:00:00Z","port":22,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.2","timestamp":"2026-10-24T12:00:00Z","port":80,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.2","timestamp":"2026-10-24T12:00:00Z","port":443,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.3","timestamp":"2026-10-24T12:00:00Z","port":22,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.3","timestamp":"2026-10-24T12:00:00Z","port":80,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.3","timestamp":"2026-10-24T12:00:00Z","port":443,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.4","timestamp":"2026-10-24T12:00:00Z","port":22,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.4","timestamp":"2026-10-24T12:00:00Z","port":80,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.4","timestamp":"2026-10-24T12:00:00Z","port":443,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.4","timestamp":"2026-10-24T12:00:00Z","port":8081,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.5","timestamp":"2026-10-24T12:00:00Z","port":3389,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.5","timestamp":"2026-10-24T12:00:00Z","port":21,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.5","timestamp":"2026-10-24T12:00:00Z","port":2222,"protocol":"tcp","tls":false}
+{"host":"web.example.com","ip":"10.0.0.10","timestamp":"2026-10-24T12:00:00Z","port":80,"protocol":"tcp","tls":false}
+{"host":"web.example.com","ip":"10.0.0.10","timestamp":"2026-10-24T12:00:00Z","port":443,"protocol":"tcp","tls":false}
+{"host":"web.example.com","ip":"10.0.0.10","timestamp":"2026-10-24T12:00:00Z","port":80,"protocol":"tcp","tls":false}
+{"host":"db.example.com","ip":"10.0.0.20","timestamp":"2026-10-24T12:00:00Z","port":5432,"protocol":"tcp","tls":false}
+{"host":"db.example.com","ip":"10.0.0.20","timestamp":"2026-10-24T12:00:00Z","port":6379,"protocol":"tcp","tls":false}
+{"ip":"192.0.2.99","timestamp":"2026-10-24T12:00:00Z","port":80,"protocol":"tcp","tls":false}
+{"ip":"2001:db8::5","timestamp":"2026-10-24T12:00:00Z","port":2375,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.6","timestamp":"2026-10-24T12:00:00Z","port":9000,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.6","timestamp":"2026-10-24T12:00:00Z","port":9001,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.6","timestamp":"2026-10-24T12:00:00Z","port":9002,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.6","timestamp":"2026-10-24T12:00:00Z","port":9003,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.6","timestamp":"2026-10-24T12:00:00Z","port":9004,"protocol":"tcp","tls":false}
+{"ip":"10.0.0.6","timestamp":"2026-10-24T12:00:00Z","port":53,"protocol":"udp","tls":false}
+{"ip":"10.0.0.7","timestamp":"2026-10-24T12:00:00Z","port":8080,"protocol":"tcp","tls":false}
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<nmaprun scanner="nmap" args="nmap -sT -sV -Pn -n -oX - -p 22,80,443 10.0.0.1 10.0.0.2 10.0.0.3" start="1792800000" version="7.94SVN" xmloutputversion="1.05">
+<host><status state="up" reason="user-set"/>
+<address addr="10.0.0.1" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack"/><service name="ssh" product="OpenSSH" version="8.9p1 Ubuntu 3ubuntu0.4" extrainfo="Ubuntu Linux; protocol 2.0" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack"/><service name="http" product="nginx" version="1.18.0" extrainfo="Ubuntu" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack"/><service name="http" product="nginx" version="1.18.0" extrainfo="Ubuntu" tunnel="ssl" method="probed" conf="10"/></port>
+</ports>
+</host>
+<host><status state="up" reason="user-set"/>
+<address addr="10.0.0.2" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack"/><service name="ssh" product="OpenSSH" version="8.9p1 Ubuntu 3ubuntu0.4" extrainfo="Ubuntu Linux; protocol 2.0" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack"/><service name="http" product="nginx" version="1.18.0" extrainfo="Ubuntu" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack"/><service name="http" product="nginx" version="1.18.0" extrainfo="Ubuntu" tunnel="ssl" method="probed" conf="10"/></port>
+</ports>
+</host>
+<host><status state="up" reason="user-set"/>
+<address addr="10.0.0.3" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack"/><service name="ssh" product="OpenSSH" version="8.9p1 Ubuntu 3ubuntu0.4" extrainfo="Ubuntu Linux; protocol 2.0" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack"/><service name="http" product="nginx" version="1.18.0" extrainfo="Ubuntu" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack"/><service name="http" product="nginx" version="1.18.0" extrainfo="Ubuntu" tunnel="ssl" method="probed" conf="10"/></port>
+</ports>
+</host>
+<runstats><finished time="1792800010" elapsed="10.00" exit="success"/></runstats>
+</nmaprun>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<nmaprun scanner="nmap" args="nmap -sT -sV -Pn -n -oX - -p 22,80,443,8081 10.0.0.4" start="1792800000" version="7.94SVN" xmloutputversion="1.05">
+<host><status state="up" reason="user-set"/>
+<address addr="10.0.0.4" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="22"><state state="open" reason="syn-ack"/><service name="ssh" product="OpenSSH" version="8.9p1 Ubuntu 3ubuntu0.4" extrainfo="Ubuntu Linux; protocol 2.0" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack"/><service name="http" product="nginx" version="1.18.0" extrainfo="Ubuntu" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack"/><service name="http" product="nginx" version="1.18.0" extrainfo="Ubuntu" tunnel="ssl" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="8081"><state state="open" reason="syn-ack"/><service name="http" product="Apache Tomcat" version="9.0.65" method="probed" conf="10"/></port>
+</ports>
+</host>
+<runstats><finished time="1792800010" elapsed="10.00" exit="success"/></runstats>
+</nmaprun>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<nmaprun scanner="nmap" args="nmap -sT -sV -Pn -n -oX - -p 21,2222,3389 10.0.0.5" start="1792800000" version="7.94SVN" xmloutputversion="1.05">
+<host><status state="up" reason="user-set"/>
+<address addr="10.0.0.5" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="21"><state state="open" reason="syn-ack"/><service name="ftp" product="vsftpd" version="3.0.5" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="2222"><state state="open" reason="syn-ack"/><service name="ssh" product="OpenSSH" version="8.9p1 Ubuntu 3ubuntu0.4" extrainfo="Ubuntu Linux; protocol 2.0" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="3389"><state state="open" reason="syn-ack"/><service name="ms-wbt-server" product="Microsoft Terminal Services" method="probed" conf="10"/></port>
+</ports>
+</host>
+<runstats><finished time="1792800010" elapsed="10.00" exit="success"/></runstats>
+</nmaprun>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<nmaprun scanner="nmap" args="nmap -sT -sV -Pn -n -oX - -p 80,443 10.0.0.10" start="1792800000" version="7.94SVN" xmloutputversion="1.05">
+<host><status state="up" reason="user-set"/>
+<address addr="10.0.0.10" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="80"><state state="open" reason="syn-ack"/><service name="http" product="nginx" version="1.18.0" extrainfo="Ubuntu" method="probed" conf="10"/></port>
+<port protocol="tcp" portid="443"><state state="open" reason="syn-ack"/><service name="http" product="nginx" version="1.18.0" extrainfo="Ubuntu" tunnel="ssl" method="probed" conf="10"/></port>
+</ports>
+</host>
+<runstats><finished time="1792800010" elapsed="10.00" exit="success"/></runstats>
+</nmaprun>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<nmaprun scanner="nmap" args="nmap -sT -sV -Pn -n -oX - -p 5432,6379 10.0.0.20" start="1792800000" version="7.94SVN" xmloutputversion="1.05">
+<host><status state="up" reason="user-set"/>
+<address addr="10.0.0.20" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="5432"><state state="open" reason="syn-ack"/><service name="postgresql" product="PostgreSQL DB" version="9.6.0 or later" method="probed" conf="10"/></port>
+</ports>
+</host>
+<runstats><finished time="1792800010" elapsed="10.00" exit="success"/></runstats>
+</nmaprun>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<nmaprun scanner="nmap" args="nmap -sT -sV -Pn -n -oX - -6 -p 2375 2001:db8::5" start="1792800000" version="7.94SVN" xmloutputversion="1.05">
+<host><status state="up" reason="user-set"/>
+<address addr="2001:db8::5" addrtype="ipv6"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="2375"><state state="open" reason="syn-ack"/><service name="docker" product="Docker remote API" version="24.0.5" extrainfo="API 1.43" method="probed" conf="10"/></port>
+</ports>
+</host>
+<runstats><finished time="1792800010" elapsed="10.00" exit="success"/></runstats>
+</nmaprun>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<nmaprun scanner="nmap" args="nmap -sT -sV -Pn -n -oX - -sU -p T:9000,9001,9002,9003,9004,U:53 10.0.0.6" start="1792800000" version="7.94SVN" xmloutputversion="1.05">
+<host><status state="up" reason="user-set"/>
+<address addr="10.0.0.6" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="9000"><state state="open" reason="syn-ack"/><service name="tcpwrapped" method="probed" conf="8"/></port>
+<port protocol="tcp" portid="9001"><state state="open" reason="syn-ack"/><service name="tcpwrapped" method="probed" conf="8"/></port>
+<port protocol="tcp" portid="9002"><state state="open" reason="syn-ack"/><service name="tcpwrapped" method="probed" conf="8"/></port>
+<port protocol="tcp" portid="9003"><state state="open" reason="syn-ack"/><service name="tcpwrapped" method="probed" conf="8"/></port>
+<port protocol="tcp" portid="9004"><state state="open" reason="syn-ack"/><service name="tcpwrapped" method="probed" conf="8"/></port>
+<port protocol="udp" portid="53"><state state="open" reason="syn-ack"/><service name="domain" product="dnsmasq" version="2.86" method="probed" conf="10"/></port>
+</ports>
+</host>
+<runstats><finished time="1792800010" elapsed="10.00" exit="success"/></runstats>
+</nmaprun>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<nmaprun scanner="nmap" args="nmap -sT -sV -Pn -n -oX - -p 8080 10.0.0.7" start="1792800000" version="7.94SVN" xmloutputversion="1.05">
+<host><status state="up" reason="user-set"/>
+<address addr="10.0.0.7" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="8080"><state state="closed" reason="syn-ack"/><service name="http-proxy" method="table" conf="3"/></port>
+</ports>
+</host>
+<runstats><finished time="1792800010" elapsed="10.00" exit="success"/></runstats>
+</nmaprun>

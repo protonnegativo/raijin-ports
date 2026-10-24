@@ -1,0 +1,418 @@
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-10-24 18:57 -03
+Nmap scan report for 127.0.0.1
+Host is up (0.00034s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.10
+Host is up (0.00043s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.11
+Host is up (0.00032s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.12
+Host is up (0.00028s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.13
+Host is up (0.00024s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.14
+Host is up (0.00021s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.15
+Host is up (0.00018s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.16
+Host is up (0.00014s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.17
+Host is up (0.00010s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.18
+Host is up (0.000070s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.19
+Host is up (0.000041s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.20
+Host is up (0.000058s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.21
+Host is up (0.00012s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.22
+Host is up (0.00057s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.23
+Host is up (0.00058s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.24
+Host is up (0.00055s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.25
+Host is up (0.00052s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.26
+Host is up (0.00049s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.27
+Host is up (0.00046s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.28
+Host is up (0.00042s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.29
+Host is up (0.00037s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 21 IP addresses (21 hosts up) scanned in 18.42 seconds
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-10-24 18:57 -03
+Nmap scan report for 127.0.0.30
+Host is up (0.000048s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    Apache httpd 2.4.52 ((Ubuntu))
+
+Nmap scan report for 127.0.0.31
+Host is up (0.00026s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    Apache httpd 2.4.52 ((Ubuntu))
+
+Nmap scan report for 127.0.0.32
+Host is up (0.00013s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    Apache httpd 2.4.52 ((Ubuntu))
+
+Nmap scan report for 127.0.0.33
+Host is up (0.000085s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    Apache httpd 2.4.52 ((Ubuntu))
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 4 IP addresses (4 hosts up) scanned in 6.27 seconds
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-10-24 18:57 -03
+Nmap scan report for 127.0.0.34
+Host is up (0.00018s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19081/tcp open  http    nginx 1.18.0 (Ubuntu)
+19777/tcp open  http    Apache httpd 2.4.52 ((Ubuntu))
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 6.25 seconds
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-10-24 18:57 -03
+Nmap scan report for 127.0.0.35
+Host is up (0.00023s latency).
+
+PORT      STATE SERVICE    VERSION
+19500/tcp open  tcpwrapped
+19501/tcp open  tcpwrapped
+19502/tcp open  tcpwrapped
+19503/tcp open  tcpwrapped
+19504/tcp open  tcpwrapped
+19505/tcp open  tcpwrapped
+19506/tcp open  tcpwrapped
+19507/tcp open  tcpwrapped
+19508/tcp open  tcpwrapped
+19509/tcp open  tcpwrapped
+19510/tcp open  tcpwrapped
+19511/tcp open  tcpwrapped
+19512/tcp open  tcpwrapped
+19513/tcp open  tcpwrapped
+19514/tcp open  tcpwrapped
+19515/tcp open  tcpwrapped
+19516/tcp open  tcpwrapped
+19517/tcp open  tcpwrapped
+19518/tcp open  tcpwrapped
+19519/tcp open  tcpwrapped
+19520/tcp open  tcpwrapped
+19521/tcp open  tcpwrapped
+19522/tcp open  tcpwrapped
+19523/tcp open  tcpwrapped
+19524/tcp open  tcpwrapped
+19525/tcp open  tcpwrapped
+19526/tcp open  tcpwrapped
+19527/tcp open  tcpwrapped
+19528/tcp open  tcpwrapped
+19529/tcp open  tcpwrapped
+19530/tcp open  tcpwrapped
+19531/tcp open  tcpwrapped
+19532/tcp open  tcpwrapped
+19533/tcp open  tcpwrapped
+19534/tcp open  tcpwrapped
+19535/tcp open  tcpwrapped
+19536/tcp open  tcpwrapped
+19537/tcp open  tcpwrapped
+19538/tcp open  tcpwrapped
+19539/tcp open  tcpwrapped
+19540/tcp open  tcpwrapped
+19541/tcp open  tcpwrapped
+19542/tcp open  tcpwrapped
+19543/tcp open  tcpwrapped
+19544/tcp open  tcpwrapped
+19545/tcp open  tcpwrapped
+19546/tcp open  tcpwrapped
+19547/tcp open  tcpwrapped
+19548/tcp open  tcpwrapped
+19549/tcp open  tcpwrapped
+19550/tcp open  tcpwrapped
+19551/tcp open  tcpwrapped
+19552/tcp open  tcpwrapped
+19553/tcp open  tcpwrapped
+19554/tcp open  tcpwrapped
+19555/tcp open  tcpwrapped
+19556/tcp open  tcpwrapped
+19557/tcp open  tcpwrapped
+19558/tcp open  tcpwrapped
+19559/tcp open  tcpwrapped
+19560/tcp open  tcpwrapped
+19561/tcp open  tcpwrapped
+19562/tcp open  tcpwrapped
+19563/tcp open  tcpwrapped
+19564/tcp open  tcpwrapped
+19565/tcp open  tcpwrapped
+19566/tcp open  tcpwrapped
+19567/tcp open  tcpwrapped
+19568/tcp open  tcpwrapped
+19569/tcp open  tcpwrapped
+19570/tcp open  tcpwrapped
+19571/tcp open  tcpwrapped
+19572/tcp open  tcpwrapped
+19573/tcp open  tcpwrapped
+19574/tcp open  tcpwrapped
+19575/tcp open  tcpwrapped
+19576/tcp open  tcpwrapped
+19577/tcp open  tcpwrapped
+19578/tcp open  tcpwrapped
+19579/tcp open  tcpwrapped
+19580/tcp open  tcpwrapped
+19581/tcp open  tcpwrapped
+19582/tcp open  tcpwrapped
+19583/tcp open  tcpwrapped
+19584/tcp open  tcpwrapped
+19585/tcp open  tcpwrapped
+19586/tcp open  tcpwrapped
+19587/tcp open  tcpwrapped
+19588/tcp open  tcpwrapped
+19589/tcp open  tcpwrapped
+19590/tcp open  tcpwrapped
+19591/tcp open  tcpwrapped
+19592/tcp open  tcpwrapped
+19593/tcp open  tcpwrapped
+19594/tcp open  tcpwrapped
+19595/tcp open  tcpwrapped
+19596/tcp open  tcpwrapped
+19597/tcp open  tcpwrapped
+19598/tcp open  tcpwrapped
+19599/tcp open  tcpwrapped
+19600/tcp open  tcpwrapped
+19601/tcp open  tcpwrapped
+19602/tcp open  tcpwrapped
+19603/tcp open  tcpwrapped
+19604/tcp open  tcpwrapped
+19605/tcp open  tcpwrapped
+19606/tcp open  tcpwrapped
+19607/tcp open  tcpwrapped
+19608/tcp open  tcpwrapped
+19609/tcp open  tcpwrapped
+19610/tcp open  tcpwrapped
+19611/tcp open  tcpwrapped
+19612/tcp open  tcpwrapped
+19613/tcp open  tcpwrapped
+19614/tcp open  tcpwrapped
+19615/tcp open  tcpwrapped
+19616/tcp open  tcpwrapped
+19617/tcp open  tcpwrapped
+19618/tcp open  tcpwrapped
+19619/tcp open  tcpwrapped
+19620/tcp open  tcpwrapped
+19621/tcp open  tcpwrapped
+19622/tcp open  tcpwrapped
+19623/tcp open  tcpwrapped
+19624/tcp open  tcpwrapped
+19625/tcp open  tcpwrapped
+19626/tcp open  tcpwrapped
+19627/tcp open  tcpwrapped
+19628/tcp open  tcpwrapped
+19629/tcp open  tcpwrapped
+19630/tcp open  tcpwrapped
+19631/tcp open  tcpwrapped
+19632/tcp open  tcpwrapped
+19633/tcp open  tcpwrapped
+19634/tcp open  tcpwrapped
+19635/tcp open  tcpwrapped
+19636/tcp open  tcpwrapped
+19637/tcp open  tcpwrapped
+19638/tcp open  tcpwrapped
+19639/tcp open  tcpwrapped
+19640/tcp open  tcpwrapped
+19641/tcp open  tcpwrapped
+19642/tcp open  tcpwrapped
+19643/tcp open  tcpwrapped
+19644/tcp open  tcpwrapped
+19645/tcp open  tcpwrapped
+19646/tcp open  tcpwrapped
+19647/tcp open  tcpwrapped
+19648/tcp open  tcpwrapped
+19649/tcp open  tcpwrapped
+19650/tcp open  tcpwrapped
+19651/tcp open  tcpwrapped
+19652/tcp open  tcpwrapped
+19653/tcp open  tcpwrapped
+19654/tcp open  tcpwrapped
+19655/tcp open  tcpwrapped
+19656/tcp open  tcpwrapped
+19657/tcp open  tcpwrapped
+19658/tcp open  tcpwrapped
+19659/tcp open  tcpwrapped
+19660/tcp open  tcpwrapped
+19661/tcp open  tcpwrapped
+19662/tcp open  tcpwrapped
+19663/tcp open  tcpwrapped
+19664/tcp open  tcpwrapped
+19665/tcp open  tcpwrapped
+19666/tcp open  tcpwrapped
+19667/tcp open  tcpwrapped
+19668/tcp open  tcpwrapped
+19669/tcp open  tcpwrapped
+19670/tcp open  tcpwrapped
+19671/tcp open  tcpwrapped
+19672/tcp open  tcpwrapped
+19673/tcp open  tcpwrapped
+19674/tcp open  tcpwrapped
+19675/tcp open  tcpwrapped
+19676/tcp open  tcpwrapped
+19677/tcp open  tcpwrapped
+19678/tcp open  tcpwrapped
+19679/tcp open  tcpwrapped
+19680/tcp open  tcpwrapped
+19681/tcp open  tcpwrapped
+19682/tcp open  tcpwrapped
+19683/tcp open  tcpwrapped
+19684/tcp open  tcpwrapped
+19685/tcp open  tcpwrapped
+19686/tcp open  tcpwrapped
+19687/tcp open  tcpwrapped
+19688/tcp open  tcpwrapped
+19689/tcp open  tcpwrapped
+19690/tcp open  tcpwrapped
+19691/tcp open  tcpwrapped
+19692/tcp open  tcpwrapped
+19693/tcp open  tcpwrapped
+19694/tcp open  tcpwrapped
+19695/tcp open  tcpwrapped
+19696/tcp open  tcpwrapped
+19697/tcp open  tcpwrapped
+19698/tcp open  tcpwrapped
+19699/tcp open  tcpwrapped
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 0.50 seconds

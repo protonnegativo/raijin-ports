@@ -1,0 +1,67 @@
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-10-24 18:59 -03
+Nmap scan report for 127.0.0.2
+Host is up (0.00022s latency).
+
+PORT      STATE SERVICE VERSION
+19022/tcp open  ssh     OpenSSH 8.9p1 Ubuntu 3ubuntu0.4 (Ubuntu Linux; protocol 2.0)
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19379/tcp open  redis   Redis key-value store
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Nmap scan report for 127.0.0.5
+Host is up (0.00033s latency).
+
+PORT      STATE SERVICE VERSION
+19022/tcp open  ssh     OpenSSH 8.9p1 Ubuntu 3ubuntu0.4 (Ubuntu Linux; protocol 2.0)
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19379/tcp open  redis   Redis key-value store
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 2 IP addresses (2 hosts up) scanned in 11.21 seconds
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-10-24 18:59 -03
+Nmap scan report for 127.0.0.3
+Host is up (0.00020s latency).
+
+PORT      STATE SERVICE   VERSION
+19023/tcp open  telnet    Linux telnetd
+19211/tcp open  memcached Memcached
+19306/tcp open  mysql     MySQL 8.0.33-0ubuntu0.22.04.2
+19590/tcp open  vnc       VNC (protocol 3.8)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 6.19 seconds
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-10-24 18:59 -03
+Nmap scan report for 127.0.0.4
+Host is up (0.00017s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19375/tcp open  docker  Docker remote API 24.0.5 (API 1.43)
+19920/tcp open  http    Elasticsearch REST API 7.17.9 (name: node-1; cluster: elasticsearch; Lucene 8.11.1)
+Service Info: OSs: Linux, linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 6.38 seconds
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-10-24 19:00 -03
+Nmap scan report for 127.0.0.6
+Host is up (0.00015s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 6.58 seconds
+Starting Nmap 7.94SVN ( https://nmap.org ) at 2026-10-24 19:00 -03
+Nmap scan report for 127.0.0.7
+Host is up (0.00015s latency).
+
+PORT      STATE SERVICE VERSION
+19080/tcp open  http    nginx 1.18.0 (Ubuntu)
+19888/tcp open  http    Apache httpd 2.4.52 ((Ubuntu))
+Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+Nmap done: 1 IP address (1 host up) scanned in 6.43 seconds
