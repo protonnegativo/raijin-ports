@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	"github.com/protonnegativo/raijin-ports/internal/banner"
+	"github.com/protonnegativo/raijin-ports/internal/engine"
 	"github.com/protonnegativo/raijin-ports/internal/naabu"
 	"github.com/protonnegativo/raijin-ports/internal/nmap"
 	"github.com/protonnegativo/raijin-ports/internal/reduce"
@@ -105,6 +106,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 
 	var results []naabu.Result
 	var services []nmap.Port
+	var naabuStats naabu.Stats
+	var nmapStats nmap.Stats
 	checked := false
 	code := 0
 	if len(inputs) > 0 {
@@ -114,12 +117,16 @@ func run(args []string, stdout, stderr io.Writer) int {
 				fmt.Fprintln(stderr, "raijin-ports:", err)
 				return 1
 			}
-			r, err1 := naabu.Parse(bytes.NewReader(b))
-			p, err2 := nmap.Parse(bytes.NewReader(b))
+			r, st1, err1 := naabu.ParseStats(bytes.NewReader(b), false)
+			p, st2, err2 := nmap.ParseStats(bytes.NewReader(b))
 			if err := errors.Join(err1, err2); err != nil {
 				fmt.Fprintln(stderr, "raijin-ports:", err)
 				return 1
 			}
+			naabuStats.Lines += st1.Lines
+			naabuStats.Bad += st1.Bad
+			nmapStats.Ports += st2.Ports
+			nmapStats.Bad += st2.Bad
 			results = append(results, r...)
 			services = append(services, p...)
 		}
@@ -185,9 +192,10 @@ func run(args []string, stdout, stderr io.Writer) int {
 		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 		defer stop()
 		var stderrTail string
+		versionCheck(ctx, &res, "naabu", *naabuBin, "-version", "-duc")
 		results, stderrTail, err = naabu.Run(ctx, targets, naabu.Options{
 			Binary: *naabuBin, Ports: *ports, TopPorts: *topPorts, Rate: *rate, Threads: *threads, Timeout: *timeout,
-			Extra: fs.Args(), Raw: raw,
+			Extra: fs.Args(), Raw: raw, Stats: &naabuStats,
 		})
 		switch {
 		case errors.Is(err, naabu.ErrNotFound):
@@ -203,7 +211,8 @@ func run(args []string, stdout, stderr io.Writer) int {
 		}
 
 		if t := nmapTargets(results, sc); !*noServices && len(t) > 0 {
-			services, stderrTail, err = nmap.Run(ctx, t, nmap.Options{Binary: *nmapBin, Extra: strings.Fields(*nmapArgs), Raw: raw})
+			versionCheck(ctx, &res, "nmap", *nmapBin, "--version")
+			services, stderrTail, err = nmap.Run(ctx, t, nmap.Options{Binary: *nmapBin, Extra: strings.Fields(*nmapArgs), Raw: raw, Stats: &nmapStats})
 			switch {
 			case errors.Is(err, nmap.ErrNotFound):
 				res.Errors = append(res.Errors, schema.Error{Kind: "missing_engine", Hint: "install nmap (apt install nmap, brew install nmap) or pass --nmap <path>, or --no-services; the ports below have no service detection"})
@@ -216,6 +225,14 @@ func run(args []string, stdout, stderr io.Writer) int {
 			}
 		}
 	}
+
+	// Results without the fields the reducer needs are counted, in errors and in omitted.unparsed.
+	src := res.Raw
+	if src == "" {
+		src = strings.Join(inputs, ", ")
+	}
+	formatCheck(&res, "naabu", naabuStats.Bad, naabuStats.Lines, "ip or host, and port", src)
+	formatCheck(&res, "nmap", nmapStats.Bad, nmapStats.Ports, "address, portid and state", src)
 
 	out := reduce.Reduce(results, services, opt)
 	res.Findings, res.Groups = out.Findings, out.Groups
@@ -251,6 +268,24 @@ func run(args []string, stdout, stderr io.Writer) int {
 	}
 	write(stdout, &res, *format, *pretty)
 	return code
+}
+
+// versionCheck adds an engine_version error when the installed engine is not a tested version. It never
+// stops the run.
+func versionCheck(ctx context.Context, res *schema.Result, name, bin string, args ...string) {
+	if h := engine.Check(ctx, name, bin, args...); h != "" {
+		res.Errors = append(res.Errors, schema.Error{Kind: "engine_version", Hint: h})
+	}
+}
+
+// formatCheck adds an engine_format error when bad of total engine results had no fields, and counts them
+// in omitted.unparsed: they are in no finding or group.
+func formatCheck(res *schema.Result, name string, bad, total int, fields, raw string) {
+	if bad == 0 {
+		return
+	}
+	res.Omitted["unparsed"] += bad
+	res.Errors = append(res.Errors, schema.Error{Kind: "engine_format", Hint: fmt.Sprintf("%d of %d %s results had no %s; the engine's output format may have changed. Read %s for the full output", bad, total, name, fields, raw)})
 }
 
 func engineError(err error, stderrTail string) schema.Error {

@@ -160,24 +160,32 @@ func TestUsageErrorsExitOne(t *testing.T) {
 // fakeEngines writes shell scripts that answer like naabu and nmap, so the live path runs offline. The
 // fake naabu says ports 80 and 6379 are open on every target and writes each line twice, as naabu
 // -json does; it fails if it is asked to scan an excluded address. The fake nmap names the services.
+// Both answer their version command with the tested version.
 func fakeEngines(t *testing.T) (string, string, string) {
+	return fakeEnginesAt(t, "2.6.1", "7.94SVN", `{\"ip\":\"$h\",\"port\":80,\"protocol\":\"tcp\",\"tls\":false}`)
+}
+
+// fakeEnginesAt is fakeEngines with the given versions and naabu's line for port 80 of an IP target.
+func fakeEnginesAt(t *testing.T, naabuVersion, nmapVersion, line80 string) (string, string, string) {
 	t.Helper()
 	dir := t.TempDir()
 	log := filepath.Join(dir, "targets.log")
 	nb := `#!/bin/sh
+[ "$1" = -version ] && { echo "[INF] Current Version: ` + naabuVersion + `" >&2; exit 0; }
 while [ "$1" != "-l" ]; do shift; done
 cp "$2" "` + log + `"
 for pass in 1 2; do
 while read -r h; do
   case "$h" in
     10.0.0.200) echo "excluded address sent to naabu" >&2; exit 1 ;;
-    *.*.*.*) echo "{\"ip\":\"$h\",\"port\":80,\"protocol\":\"tcp\",\"tls\":false}"; echo "{\"ip\":\"$h\",\"port\":6379,\"protocol\":\"tcp\",\"tls\":false}" ;;
+    *.*.*.*) echo "` + line80 + `"; echo "{\"ip\":\"$h\",\"port\":6379,\"protocol\":\"tcp\",\"tls\":false}" ;;
     *) echo "{\"host\":\"$h\",\"ip\":\"10.0.0.50\",\"port\":80,\"protocol\":\"tcp\",\"tls\":false}" ;;
   esac
 done < "$2"
 done
 `
 	nm := `#!/bin/sh
+[ "$1" = --version ] && { echo "Nmap version ` + nmapVersion + ` ( https://nmap.org )"; exit 0; }
 ips=""
 for a in "$@"; do case "$a" in *.*.*.*) ips="$ips $a" ;; esac; done
 echo '<?xml version="1.0" encoding="UTF-8"?>'
@@ -330,5 +338,51 @@ func TestScopeAloneScansWhatTheScopeNames(t *testing.T) {
 	}
 	if res.Omitted["out_of_scope"] != 0 {
 		t.Errorf("the scope's own exclusions are not out-of-scope targets: %v", res.Omitted)
+	}
+}
+
+func TestUntestedEngineVersionWarnsWithoutChangingTheRun(t *testing.T) {
+	nb, nm, _ := fakeEnginesAt(t, "2.5.0", "7.95", `{\"ip\":\"$h\",\"port\":80,\"protocol\":\"tcp\",\"tls\":false}`)
+	var out, errb bytes.Buffer
+	code := run([]string{"--scope", scopeFile(t), "-host", "10.0.0.5", "--naabu", nb, "--nmap", nm, "--raw", filepath.Join(t.TempDir(), "raw")}, &out, &errb)
+	if code != 0 {
+		t.Fatalf("exit %d: %s", code, errb.String())
+	}
+	var v output
+	json.Unmarshal(out.Bytes(), &v)
+	// naabu 2.5.0 is older than tested; nmap 7.95 is a newer minor of the same major, which is silent
+	if len(v.Errors) != 1 || v.Errors[0].Kind != "engine_version" || !strings.HasPrefix(v.Errors[0].Hint, "naabu 2.5.0 is not the tested 2.6.1") {
+		t.Fatalf("errors: %s", out.String())
+	}
+	if v.Summary != "1 hosts, 2 open ports, 1 findings (1 high), 1 groups" {
+		t.Errorf("summary %q", v.Summary)
+	}
+}
+
+func TestRenamedFieldIsAnEngineFormatError(t *testing.T) {
+	// naabu renamed "port" to "p" on port 80 lines: those results are counted, not dropped silently
+	nb, nm, _ := fakeEnginesAt(t, "2.6.1", "7.94SVN", `{\"ip\":\"$h\",\"p\":80,\"protocol\":\"tcp\",\"tls\":false}`)
+	raw := filepath.Join(t.TempDir(), "raw")
+	var out, errb bytes.Buffer
+	run([]string{"--scope", scopeFile(t), "-host", "10.0.0.5", "--naabu", nb, "--nmap", nm, "--raw", raw}, &out, &errb)
+	var v output
+	json.Unmarshal(out.Bytes(), &v)
+	if len(v.Errors) != 1 || v.Errors[0].Kind != "engine_format" || v.Errors[0].Hint != "2 of 4 naabu results had no ip or host, and port; the engine's output format may have changed. Read "+raw+" for the full output" {
+		t.Fatalf("errors: %s", out.String())
+	}
+	if v.Omitted["unparsed"] != 2 {
+		t.Errorf("omitted %v", v.Omitted)
+	}
+
+	// nmap renamed portid: its ports are counted the same way, in a replay too
+	in := filepath.Join(t.TempDir(), "in.xml")
+	os.WriteFile(in, []byte(`<nmaprun><host><address addr="10.0.0.5" addrtype="ipv4"/><ports><port protocol="tcp" port="22"><state state="open"/><service name="ssh"/></port></ports></host></nmaprun>
+`), 0o600)
+	out.Reset()
+	run([]string{"--scope", scopeFile(t), "--input", in}, &out, &errb)
+	v = output{}
+	json.Unmarshal(out.Bytes(), &v)
+	if len(v.Errors) != 1 || v.Errors[0].Kind != "engine_format" || !strings.HasPrefix(v.Errors[0].Hint, "1 of 1 nmap results had no address, portid and state") || v.Omitted["unparsed"] != 1 {
+		t.Fatalf("nmap: %s", out.String())
 	}
 }

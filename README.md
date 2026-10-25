@@ -210,6 +210,10 @@ The Raijin banner is **off by default**, so normal runs stay small. `--banner` p
 | `--naabu`, `--nmap` | naabu, nmap | paths to the binaries |
 | `--banner` | false | print the banner to stderr |
 
+## Engine versions
+
+The tested versions of naabu and nmap are in `engines.json`, which is built into the binary. Before a scan, raijin-ports runs `naabu -version` and `nmap --version`; when the installed engine is another major version or older than the tested one, it says so in `errors` (`engine_version`) with the command to install the tested version. When an engine's output has results without the fields raijin-ports needs, it adds an `engine_format` error and counts them in `omitted.unparsed`. Neither stops the scan or changes the exit code. A weekly job runs the live benchmark with the latest naabu and nmap and opens a PR to bump `engines.json` when it passes, or an issue when it breaks.
+
 ## Development
 
 ```bash

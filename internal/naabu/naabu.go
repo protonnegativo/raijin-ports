@@ -40,6 +40,14 @@ type Options struct {
 	Extra    []string
 	// Raw, if set, receives naabu's JSONL output unchanged.
 	Raw io.Writer
+	// Stats, if set, receives the count of output lines and of lines that were not a result.
+	Stats *Stats
+}
+
+// Stats counts naabu's output lines (Lines) and those that had no ip or host, and port (Bad): with -json
+// every line should be a result, so a bad line means naabu's output format may have changed.
+type Stats struct {
+	Lines, Bad int
 }
 
 // Run scans the targets and returns every open port, plus the last stderr lines if naabu failed.
@@ -78,7 +86,10 @@ func Run(ctx context.Context, targets []string, opt Options) ([]Result, string, 
 	if err := cmd.Start(); err != nil {
 		return nil, "", err
 	}
-	results, parseErr := Parse(r)
+	results, st, parseErr := ParseStats(r, true)
+	if opt.Stats != nil {
+		*opt.Stats = st
+	}
 	waitErr := cmd.Wait()
 	if parseErr != nil {
 		return results, tail(stderr.String(), 3), parseErr
@@ -114,7 +125,15 @@ func Args(listFile string, opt Options) []string {
 // Parse reads naabu JSONL, and naabu's text output (one host:port per line). Other lines are skipped,
 // so a file with naabu and nmap output can be read by both parsers.
 func Parse(r io.Reader) ([]Result, error) {
+	results, _, err := ParseStats(r, false)
+	return results, err
+}
+
+// ParseStats is Parse that also counts the lines. JSON lines without the fields Raijin needs are bad; with
+// strict (naabu's own -json stdout), so is every line that is not JSON.
+func ParseStats(r io.Reader, strict bool) ([]Result, Stats, error) {
 	var results []Result
+	var st Stats
 	sc := bufio.NewScanner(r)
 	sc.Buffer(make([]byte, 0, 64*1024), 16*1024*1024)
 	for sc.Scan() {
@@ -123,13 +142,20 @@ func Parse(r io.Reader) ([]Result, error) {
 			continue
 		}
 		if line[0] != '{' {
+			if strict {
+				st.Lines++
+				st.Bad++
+				continue
+			}
 			if res, ok := parseText(string(line)); ok {
 				results = append(results, res)
 			}
 			continue
 		}
+		st.Lines++
 		var res Result
 		if err := json.Unmarshal(line, &res); err != nil || res.IP == "" && res.Host == "" || res.Port <= 0 {
+			st.Bad++
 			continue
 		}
 		if res.Protocol == "" {
@@ -137,7 +163,7 @@ func Parse(r io.Reader) ([]Result, error) {
 		}
 		results = append(results, res)
 	}
-	return results, sc.Err()
+	return results, st, sc.Err()
 }
 
 // parseText reads "host:port" or "[v6]:port". A host that is an IP is the IP, otherwise it is a name

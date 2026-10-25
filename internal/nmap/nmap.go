@@ -48,6 +48,15 @@ type Options struct {
 	Extra  []string
 	// Raw, if set, receives nmap's XML output unchanged.
 	Raw io.Writer
+	// Stats, if set, receives the count of ports in nmap's output and of ports without the fields Raijin
+	// needs, summed over every run.
+	Stats *Stats
+}
+
+// Stats counts the <port> elements nmap wrote (Ports) and those without a portid or a state, or on a host
+// with no IP address (Bad). Bad ports are left out of the result: nmap's XML format may have changed.
+type Stats struct {
+	Ports, Bad int
 }
 
 // Run identifies the services on the targets. IPs with the same set of ports share one nmap run, so 40
@@ -74,7 +83,11 @@ func Run(ctx context.Context, targets []Target, opt Options) ([]Port, string, er
 				return all, "", err
 			}
 		}
-		ports, parseErr := Parse(&stdout)
+		ports, st, parseErr := ParseStats(&stdout)
+		if opt.Stats != nil {
+			opt.Stats.Ports += st.Ports
+			opt.Stats.Bad += st.Bad
+		}
 		all = append(all, ports...)
 		if runErr != nil {
 			return all, tail(stderr.String(), 3), fmt.Errorf("nmap exited: %w", runErr)
@@ -208,7 +221,14 @@ type xmlRun struct {
 // Parse reads every nmap XML document (-oX) in r. Lines outside a document are skipped, so a file with
 // naabu and nmap output, like the raw file, can be read by both parsers.
 func Parse(r io.Reader) ([]Port, error) {
+	ports, _, err := ParseStats(r)
+	return ports, err
+}
+
+// ParseStats is Parse that also counts the ports, and the ports it left out.
+func ParseStats(r io.Reader) ([]Port, Stats, error) {
 	var ports []Port
+	var st Stats
 	var doc bytes.Buffer
 	in := false
 	sc := bufio.NewScanner(r)
@@ -227,22 +247,22 @@ func Parse(r io.Reader) ([]Port, error) {
 		doc.WriteByte('\n')
 		if bytes.Contains(t, []byte("</nmaprun>")) {
 			in = false
-			p, err := parseDoc(doc.Bytes())
+			p, err := parseDoc(doc.Bytes(), &st)
 			if err != nil {
-				return ports, err
+				return ports, st, err
 			}
 			ports = append(ports, p...)
 		}
 	}
 	if in {
 		// nmap was stopped before it closed the document: keep the hosts it finished.
-		p, _ := parseDoc(append(doc.Bytes(), "</nmaprun>\n"...))
+		p, _ := parseDoc(append(doc.Bytes(), "</nmaprun>\n"...), &st)
 		ports = append(ports, p...)
 	}
-	return ports, sc.Err()
+	return ports, st, sc.Err()
 }
 
-func parseDoc(b []byte) ([]Port, error) {
+func parseDoc(b []byte, st *Stats) ([]Port, error) {
 	var run xmlRun
 	if err := xml.Unmarshal(b, &run); err != nil {
 		return nil, fmt.Errorf("nmap XML: %w", err)
@@ -256,7 +276,9 @@ func parseDoc(b []byte) ([]Port, error) {
 				break
 			}
 		}
+		st.Ports += len(h.Ports)
 		if net.ParseIP(ip) == nil {
+			st.Bad += len(h.Ports)
 			continue
 		}
 		host := ""
@@ -266,6 +288,10 @@ func parseDoc(b []byte) ([]Port, error) {
 			}
 		}
 		for _, p := range h.Ports {
+			if p.PortID <= 0 || p.State.State == "" {
+				st.Bad++
+				continue
+			}
 			s := p.Service
 			name := s.Name
 			if name != "" && s.Tunnel == "ssl" {
