@@ -38,7 +38,9 @@ Against the engines' text output (`naabu -silent` and nmap's normal output), rai
 go install github.com/protonnegativo/raijin-ports/cmd/raijin-ports@latest
 ```
 
-You also need `naabu` and `nmap` on `PATH`, or pass `--naabu <path>` and `--nmap <path>`. Without nmap, `--no-services` lists the open ports only.
+This installs the latest release. You also need `naabu` and `nmap` on `PATH`, or pass `--naabu <path>` and `--nmap <path>`. Without nmap, `--no-services` lists the open ports only.
+
+**Versions.** Releases are tagged automatically on every change and every passing engine update. `raijin-ports --version` shows the release and the tested engine versions, e.g. `raijin-ports v0.1.3 (tested with naabu 2.6.1, nmap 7.98)`. `raijin-mcp update` updates every Raijin tool at once.
 
 ## Usage
 
@@ -212,7 +214,7 @@ The Raijin banner is **off by default**, so normal runs stay small. `--banner` p
 
 ## Engine versions
 
-The tested versions of naabu and nmap are in `engines.json`, which is built into the binary. Before a scan, raijin-ports runs `naabu -version` and `nmap --version`; when the installed engine is another major version or older than the tested one, it says so in `errors` (`engine_version`) with the command to install the tested version. When an engine's output has results without the fields raijin-ports needs, it adds an `engine_format` error and counts them in `omitted.unparsed`. Neither stops the scan or changes the exit code. A weekly job runs the live benchmark with the latest naabu and nmap and opens a PR to bump `engines.json` when it passes, or an issue when it breaks.
+The tested versions of naabu and nmap are in `engines.json`, which is built into the binary. Before a scan, raijin-ports runs `naabu -version` and `nmap --version`; when the installed engine is another major version or older than the tested one, it says so in `errors` (`engine_version`) with the command to install the tested version. When an engine's output has results without the fields raijin-ports needs, it adds an `engine_format` error and counts them in `omitted.unparsed`. Neither stops the scan or changes the exit code. A weekly job runs the live benchmark with the latest naabu and nmap; when it passes with a newer version it commits the bump and tags a release, and when it breaks it opens an issue.
 
 ## Development
 

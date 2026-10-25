@@ -1,0 +1,45 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: which part of the version to bump
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Skip a push that changes no binary
+        id: changes
+        if: github.event_name == 'push'
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          # fixtures, docs and workflows are not in the binary; engines.json is (embedded), so it releases
+          if [ -z "${BEFORE//0/}" ] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            echo "release=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          if git diff --name-only "$BEFORE" HEAD | grep -vE '^(bench/fixtures/|docs/|\.github/)|\.md$' | grep -q .; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "only fixtures, docs or workflows changed; no release"
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Tag and release
+        if: steps.changes.outputs.release != 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUMP: ${{ inputs.bump || 'patch' }}
+        run: .github/release.sh "$BUMP"

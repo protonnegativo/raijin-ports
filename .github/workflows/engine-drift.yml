@@ -15,7 +15,6 @@ on:
 permissions:
   contents: write
   issues: write
-  pull-requests: write
 
 jobs:
   drift:
@@ -29,6 +28,8 @@ jobs:
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -80,7 +81,7 @@ jobs:
           mkdir -p "$RUNNER_TEMP/live"
           cp -r bench/fixtures "$RUNNER_TEMP/live/fixtures" || true
           cp "$RUNNER_TEMP/bench.log" "$RUNNER_TEMP/live/" || true
-          # the PR below must not carry the refreshed fixtures
+          # the bump commit below must not carry the refreshed fixtures
           git checkout -- bench/fixtures
       - uses: actions/upload-artifact@v4
         if: always()
@@ -110,47 +111,50 @@ jobs:
           else
             gh issue create --title "Engine drift: naabu ${NAABU:-unknown}, nmap ${NMAP:-unknown}" --label engine-drift --body-file "$RUNNER_TEMP/issue.md"
           fi
-      - name: Open or update the bump PR
+      - name: Bump engines.json
+        id: bump
         env:
           NAABU: ${{ steps.versions.outputs.naabu }}
           NMAP: ${{ steps.versions.outputs.nmap }}
         run: |
-          changes=() title=() branch=()
+          title=()
           for e in naabu nmap; do
             case $e in naabu) new=$NAABU ;; nmap) new=$NMAP ;; esac
             old=$(jq -r ".$e.version" engines.json)
             [ -n "$new" ] && [ "$new" != "$old" ] || continue
             # only newer versions are bumped
             [ "$(printf '%s\n%s\n' "$old" "$new" | sort -V | tail -1)" = "$new" ] || continue
-            jq --arg e "$e" --arg v "$new" '.[$e].version = $v' engines.json > engines.tmp && mv engines.tmp engines.json
-            changes+=("- $e $old → $new")
+            # edit the line in place: engines.json keeps one compact line per engine
+            sed -i -E "s/^(  \"$e\": \{\"version\": \")[^\"]*/\1$new/" engines.json
+            [ "$(jq -r ".$e.version" engines.json)" = "$new" ] || { echo "could not bump $e in engines.json"; exit 1; }
             title+=("$e $new")
-            branch+=("$e-$new")
           done
-          [ ${#changes[@]} -gt 0 ] || { echo "engines.json is up to date"; exit 0; }
-          b="engine-bump/$(IFS=-; echo "${branch[*]}")"
-          t="Test with $(printf '%s, ' "${title[@]}" | sed 's/, $//')"
-          {
-            printf '%s\n' "${changes[@]}"
-            echo
-            echo "The LIVE benchmark passed with these versions:"
-            echo
-            echo '```'
-            cat "$RUNNER_TEMP/verify.txt"
-            echo '```'
-            echo
-            echo "The refreshed fixtures are in the run's live-bench artifact, not in this PR: BENCHMARK.md numbers come from the committed fixtures."
-            echo
-            echo "Run: $RUN_URL"
-          } > "$RUNNER_TEMP/pr.md"
+          [ ${#title[@]} -gt 0 ] || { echo "engines.json is up to date"; exit 0; }
+          echo "message=Test with $(printf '%s, ' "${title[@]}" | sed 's/, $//')" >> "$GITHUB_OUTPUT"
+      - name: Unit tests with the bump
+        if: steps.bump.outputs.message != ''
+        run: |
+          go test ./... 2>&1 | tee "$RUNNER_TEMP/gotest.log" || {
+            { echo "go test failed after bumping engines.json:"; tail -n 30 "$RUNNER_TEMP/gotest.log"; } >> "$RUNNER_TEMP/verify.txt"
+            exit 1
+          }
+      - name: Commit the bump and release
+        if: steps.bump.outputs.message != ''
+        env:
+          MESSAGE: ${{ steps.bump.outputs.message }}
+        run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git checkout -B "$b"
           git add engines.json
-          git commit -m "$t"
-          git push --force origin "$b"
-          if gh pr view "$b" --json state --jq .state 2>/dev/null | grep -q OPEN; then
-            gh pr edit "$b" --title "$t" --body-file "$RUNNER_TEMP/pr.md"
-          else
-            gh pr create --head "$b" --title "$t" --body-file "$RUNNER_TEMP/pr.md"
-          fi
+          git commit -m "$MESSAGE"
+          git push origin "HEAD:${{ github.event.repository.default_branch }}"
+          # a push with GITHUB_TOKEN does not trigger release.yml, so tag here
+          .github/release.sh patch
+      - name: Close the drift issue
+        env:
+          NAABU: ${{ steps.versions.outputs.naabu }}
+          NMAP: ${{ steps.versions.outputs.nmap }}
+        run: |
+          for n in $(gh issue list --label engine-drift --state open --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Passes with naabu $NAABU, nmap $NMAP: $RUN_URL"
+          done
