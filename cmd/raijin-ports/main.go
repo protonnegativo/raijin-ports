@@ -13,6 +13,7 @@ import (
 	"net"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"strings"
 
 	"github.com/protonnegativo/raijin-ports/internal/banner"
@@ -25,7 +26,57 @@ import (
 	"github.com/protonnegativo/raijin-ports/internal/state"
 )
 
-const version = "0.1.0"
+// version is the release the binary was installed at (go install ...@vX.Y.Z or @latest), or "dev" with the
+// VCS revision for a local build.
+var version = buildVersion(debug.ReadBuildInfo())
+
+func buildVersion(info *debug.BuildInfo, ok bool) string {
+	if !ok {
+		return "dev"
+	}
+	var rev string
+	var dirty bool
+	for _, s := range info.Settings {
+		switch s.Key {
+		case "vcs.revision":
+			rev = s.Value
+		case "vcs.modified":
+			dirty = s.Value == "true"
+		}
+	}
+	// go install from the module proxy has no VCS settings; a local go build has them (and, since Go
+	// 1.24, a pseudo-version of the checkout that is not a release)
+	if v := info.Main.Version; v != "" && v != "(devel)" && rev == "" {
+		return v
+	}
+	v := "dev"
+	if rev != "" {
+		v += "-" + rev[:min(12, len(rev))]
+	}
+	if dirty {
+		v += "+dirty"
+	}
+	return v
+}
+
+// versionLine is what --version prints: the release and the engine versions it was tested with.
+func versionLine() string {
+	s := "raijin-ports " + version
+	tested, err := engine.Tested()
+	if err != nil {
+		return s
+	}
+	var parts []string
+	for _, name := range []string{"naabu", "nmap"} {
+		if e, ok := tested[name]; ok {
+			parts = append(parts, name+" "+e.Version)
+		}
+	}
+	if len(parts) > 0 {
+		s += " (tested with " + strings.Join(parts, ", ") + ")"
+	}
+	return s
+}
 
 // maxCIDR is the largest range a target can expand to (a /16). Each address is checked against the
 // scope before naabu runs, so exclusions inside a range are never scanned.
@@ -76,7 +127,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		banner.Write(stderr, "raijin-ports", version, useColor(stderr))
 	}
 	if *showVersion {
-		fmt.Fprintln(stdout, "raijin-ports", version)
+		fmt.Fprintln(stdout, versionLine())
 		return 0
 	}
 	if *scopeFile == "" {
@@ -199,7 +250,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		})
 		switch {
 		case errors.Is(err, naabu.ErrNotFound):
-			res.Errors = append(res.Errors, schema.Error{Kind: "missing_engine", Hint: "install naabu (go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest) or pass --naabu <path>"})
+			res.Errors = append(res.Errors, schema.Error{Kind: "missing_engine", Hint: "install naabu (go install github.com/projectdiscovery/naabu/v2/cmd/naabu@latest) or pass --naabu <path>, or run raijin-mcp update"})
 			res.Summary = "naabu not found, nothing scanned"
 			res.Raw = ""
 			raw.Close()

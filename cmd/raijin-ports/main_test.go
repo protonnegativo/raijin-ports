@@ -3,10 +3,14 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
+	"runtime/debug"
 	"strings"
 	"testing"
+
+	"github.com/protonnegativo/raijin-ports/internal/engine"
 )
 
 func scopeFile(t *testing.T) string {
@@ -58,7 +62,7 @@ func TestBannerGoesToStderrOnly(t *testing.T) {
 	if code != 0 {
 		t.Fatalf("exit %d", code)
 	}
-	if !strings.Contains(errb.String(), "TGT-LOCK") || !strings.Contains(errb.String(), "raijin-ports v"+version) {
+	if !strings.Contains(errb.String(), "TGT-LOCK") || !strings.Contains(errb.String(), "raijin-ports "+version) {
 		t.Errorf("banner missing or without the version: %q", errb.String())
 	}
 	if strings.Contains(out.String(), "TGT-LOCK") {
@@ -160,9 +164,29 @@ func TestUsageErrorsExitOne(t *testing.T) {
 // fakeEngines writes shell scripts that answer like naabu and nmap, so the live path runs offline. The
 // fake naabu says ports 80 and 6379 are open on every target and writes each line twice, as naabu
 // -json does; it fails if it is asked to scan an excluded address. The fake nmap names the services.
-// Both answer their version command with the tested version.
+// Both answer their version command with the tested version from engines.json.
 func fakeEngines(t *testing.T) (string, string, string) {
-	return fakeEnginesAt(t, "2.6.1", "7.94SVN", `{\"ip\":\"$h\",\"port\":80,\"protocol\":\"tcp\",\"tls\":false}`)
+	return fakeEnginesAt(t, tested(t, "naabu"), tested(t, "nmap")+"SVN", `{\"ip\":\"$h\",\"port\":80,\"protocol\":\"tcp\",\"tls\":false}`)
+}
+
+// tested is the engine's version in engines.json.
+func tested(t *testing.T, name string) string {
+	t.Helper()
+	m, err := engine.Tested()
+	if err != nil || m[name].Version == "" {
+		t.Fatalf("engines.json has no %s: %v", name, err)
+	}
+	return m[name].Version
+}
+
+// bumped is the tested version of the engine with major, minor and patch added to its parts.
+func bumped(t *testing.T, name string, major, minor, patch int) string {
+	t.Helper()
+	v, _, ok := engine.ParseVersion(tested(t, name))
+	if !ok {
+		t.Fatalf("bad %s version", name)
+	}
+	return fmt.Sprintf("%d.%d.%d", v[0]+major, v[1]+minor, v[2]+patch)
 }
 
 // fakeEnginesAt is fakeEngines with the given versions and naabu's line for port 80 of an IP target.
@@ -342,7 +366,8 @@ func TestScopeAloneScansWhatTheScopeNames(t *testing.T) {
 }
 
 func TestUntestedEngineVersionWarnsWithoutChangingTheRun(t *testing.T) {
-	nb, nm, _ := fakeEnginesAt(t, "2.5.0", "7.95", `{\"ip\":\"$h\",\"port\":80,\"protocol\":\"tcp\",\"tls\":false}`)
+	old := bumped(t, "naabu", 1, 0, 0)
+	nb, nm, _ := fakeEnginesAt(t, old, bumped(t, "nmap", 0, 1, 0), `{\"ip\":\"$h\",\"port\":80,\"protocol\":\"tcp\",\"tls\":false}`)
 	var out, errb bytes.Buffer
 	code := run([]string{"--scope", scopeFile(t), "-host", "10.0.0.5", "--naabu", nb, "--nmap", nm, "--raw", filepath.Join(t.TempDir(), "raw")}, &out, &errb)
 	if code != 0 {
@@ -350,8 +375,8 @@ func TestUntestedEngineVersionWarnsWithoutChangingTheRun(t *testing.T) {
 	}
 	var v output
 	json.Unmarshal(out.Bytes(), &v)
-	// naabu 2.5.0 is older than tested; nmap 7.95 is a newer minor of the same major, which is silent
-	if len(v.Errors) != 1 || v.Errors[0].Kind != "engine_version" || !strings.HasPrefix(v.Errors[0].Hint, "naabu 2.5.0 is not the tested 2.6.1") {
+	// naabu is another major than tested; nmap is a newer minor of the same major, which is silent
+	if len(v.Errors) != 1 || v.Errors[0].Kind != "engine_version" || !strings.HasPrefix(v.Errors[0].Hint, "naabu "+old+" is not the tested "+tested(t, "naabu")) || !strings.HasSuffix(v.Errors[0].Hint, ", or run raijin-mcp update") {
 		t.Fatalf("errors: %s", out.String())
 	}
 	if v.Summary != "1 hosts, 2 open ports, 1 findings (1 high), 1 groups" {
@@ -361,7 +386,7 @@ func TestUntestedEngineVersionWarnsWithoutChangingTheRun(t *testing.T) {
 
 func TestRenamedFieldIsAnEngineFormatError(t *testing.T) {
 	// naabu renamed "port" to "p" on port 80 lines: those results are counted, not dropped silently
-	nb, nm, _ := fakeEnginesAt(t, "2.6.1", "7.94SVN", `{\"ip\":\"$h\",\"p\":80,\"protocol\":\"tcp\",\"tls\":false}`)
+	nb, nm, _ := fakeEnginesAt(t, tested(t, "naabu"), tested(t, "nmap"), `{\"ip\":\"$h\",\"p\":80,\"protocol\":\"tcp\",\"tls\":false}`)
 	raw := filepath.Join(t.TempDir(), "raw")
 	var out, errb bytes.Buffer
 	run([]string{"--scope", scopeFile(t), "-host", "10.0.0.5", "--naabu", nb, "--nmap", nm, "--raw", raw}, &out, &errb)
@@ -384,5 +409,35 @@ func TestRenamedFieldIsAnEngineFormatError(t *testing.T) {
 	json.Unmarshal(out.Bytes(), &v)
 	if len(v.Errors) != 1 || v.Errors[0].Kind != "engine_format" || !strings.HasPrefix(v.Errors[0].Hint, "1 of 1 nmap results had no address, portid and state") || v.Omitted["unparsed"] != 1 {
 		t.Fatalf("nmap: %s", out.String())
+	}
+}
+
+func TestBuildVersion(t *testing.T) {
+	cases := []struct {
+		info *debug.BuildInfo
+		ok   bool
+		want string
+	}{
+		{nil, false, "dev"},
+		{&debug.BuildInfo{Main: debug.Module{Version: "v0.1.3"}}, true, "v0.1.3"},
+		{&debug.BuildInfo{Main: debug.Module{Version: "(devel)"}}, true, "dev"},
+		{&debug.BuildInfo{Main: debug.Module{Version: "v0.0.0-20261025032213-d60adfd94ae9+dirty"}, Settings: []debug.BuildSetting{{Key: "vcs.revision", Value: "0123456789abcdef0123"}, {Key: "vcs.modified", Value: "true"}}}, true, "dev-0123456789ab+dirty"},
+		{&debug.BuildInfo{Settings: []debug.BuildSetting{{Key: "vcs.revision", Value: "abc"}, {Key: "vcs.modified", Value: "false"}}}, true, "dev-abc"},
+	}
+	for _, c := range cases {
+		if got := buildVersion(c.info, c.ok); got != c.want {
+			t.Errorf("buildVersion = %q, want %q", got, c.want)
+		}
+	}
+}
+
+func TestVersionLine(t *testing.T) {
+	var out, errb bytes.Buffer
+	if code := run([]string{"--version"}, &out, &errb); code != 0 {
+		t.Fatalf("exit %d", code)
+	}
+	want := "raijin-ports " + version + " (tested with naabu " + tested(t, "naabu") + ", nmap " + tested(t, "nmap") + ")\n"
+	if out.String() != want {
+		t.Errorf("--version = %q, want %q", out.String(), want)
 	}
 }

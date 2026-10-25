@@ -112,6 +112,9 @@ func (p painter) name() []string {
 }
 
 func (p painter) hud(tool, version string) []string {
+	if version != "" && version[0] >= '0' && version[0] <= '9' {
+		version = "v" + version // a release from the build already has its v
+	}
 	row := func(s string, c rgb) string {
 		return p.paint("│ "+s+strings.Repeat(" ", hudWidth-1-cells(s))+"│", c)
 	}
@@ -122,7 +125,7 @@ func (p painter) hud(tool, version string) []string {
 		row("SIGNAL .... "+strings.Repeat("█", 18)+"░░ 90%", cyan),
 		row("NOISE ..... "+strings.Repeat("░", 20)+" ~0", text),
 		row("OUTPUT .... Raijin Schema · JSON", text),
-		row("BUILD ..... "+tool+" v"+version, text),
+		row("BUILD ..... "+tool+" "+version, text),
 		p.paint("╰"+strings.Repeat("─", hudWidth)+"╯", frame),
 	}
 }

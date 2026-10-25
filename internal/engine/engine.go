@@ -109,5 +109,5 @@ func hint(name, output string, e Engine) string {
 	if !ok || !ok2 || !Untested(got, want) {
 		return ""
 	}
-	return fmt.Sprintf("%s %s is not the tested %s; results may be incomplete. Install the tested version: %s", name, text, e.Version, e.Install(e.Version))
+	return fmt.Sprintf("%s %s is not the tested %s; results may be incomplete. Install the tested version: %s, or run raijin-mcp update", name, text, e.Version, e.Install(e.Version))
 }
