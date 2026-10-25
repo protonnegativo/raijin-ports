@@ -301,3 +301,34 @@ func TestTableFormat(t *testing.T) {
 		}
 	}
 }
+
+// With only --scope, every host the scope names is scanned and wildcards and large ranges get a next step.
+func TestScopeAloneScansWhatTheScopeNames(t *testing.T) {
+	nb, nm, log := fakeEngines(t)
+	dir := t.TempDir()
+	scopePath := filepath.Join(dir, "scope.txt")
+	if err := os.WriteFile(scopePath, []byte("example.com\n*.example.com\n10.0.0.200/30\n!10.0.0.200\n10.0.0.0/8\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	var out, errb bytes.Buffer
+	if code := run([]string{"--scope", scopePath, "--naabu", nb, "--nmap", nm, "--raw", filepath.Join(dir, "raw.txt")}, &out, &errb); code != 0 {
+		t.Fatalf("exit %d: %s %s", code, errb.String(), out.String())
+	}
+	targets, _ := os.ReadFile(log)
+	if string(targets) != "example.com\n10.0.0.201\n10.0.0.202\n10.0.0.203\n" {
+		t.Errorf("naabu targets: %q", targets)
+	}
+	var res struct {
+		Next    []string
+		Omitted map[string]int
+	}
+	if err := json.Unmarshal(out.Bytes(), &res); err != nil {
+		t.Fatal(err)
+	}
+	if len(res.Next) != 2 || !strings.Contains(res.Next[0], "raijin-subs --scope "+scopePath+" -d example.com") || !strings.Contains(res.Next[1], "-host <range> to cover 10.0.0.0/8") {
+		t.Errorf("next = %v", res.Next)
+	}
+	if res.Omitted["out_of_scope"] != 0 {
+		t.Errorf("the scope's own exclusions are not out-of-scope targets: %v", res.Omitted)
+	}
+}

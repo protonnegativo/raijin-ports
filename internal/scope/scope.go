@@ -104,6 +104,50 @@ func (s *Scope) includes() []rule {
 	return out
 }
 
+// MaxRange is the largest IP range Targets returns for a caller to expand (a /16, 65536 addresses).
+const MaxRange = 16
+
+// Targets lists the targets the scope itself names, so a tool can run on the scope file alone: every
+// domain and single IP the scope allows, and every range up to a /MaxRange host bits as a CIDR for the
+// caller to expand and check address by address against exclusions. A wildcard names no host (it
+// leaves out the apex), so it is returned in wildcards for the caller to enumerate first; larger
+// ranges are returned in ranges.
+func (s *Scope) Targets() (targets, wildcards, ranges []string) {
+	seen := map[string]bool{}
+	for _, r := range s.includes() {
+		var t string
+		switch {
+		case r.wildcard:
+			wildcards = append(wildcards, "*."+r.domain)
+			continue
+		case r.ipnet != nil:
+			ones, bits := r.ipnet.Mask.Size()
+			switch {
+			case ones == bits:
+				t = r.ipnet.IP.String()
+				if !s.Allowed(t) {
+					continue
+				}
+			case bits-ones > MaxRange:
+				ranges = append(ranges, r.ipnet.String())
+				continue
+			default:
+				t = r.ipnet.String()
+			}
+		default:
+			t = r.domain
+			if !s.Allowed(t) {
+				continue
+			}
+		}
+		if !seen[t] {
+			seen[t] = true
+			targets = append(targets, t)
+		}
+	}
+	return targets, wildcards, ranges
+}
+
 // Allowed reports whether a target (a hostname, host:port, IP or URL) is in scope.
 func (s *Scope) Allowed(target string) bool {
 	host := Hostname(target)

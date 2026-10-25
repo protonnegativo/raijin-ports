@@ -43,6 +43,7 @@ You also need `naabu` and `nmap` on `PATH`, or pass `--naabu <path>` and `--nmap
 ## Usage
 
 ```bash
+raijin-ports --scope scope.txt                                       # scan every host the scope names
 raijin-ports --scope scope.txt -host 10.0.0.0/24 -p 1-65535
 raijin-ports --scope scope.txt -l hosts.txt --top-ports 1000 --max-items 20
 raijin-ports --scope scope.txt -host app.example.com --no-services   # open ports only, no nmap
@@ -63,6 +64,8 @@ example.com
 ```
 
 Targets outside the scope are dropped before naabu runs. A CIDR target is expanded (up to a /16) and every address is checked on its own, so an exclusion inside a range is never scanned. Results for hosts outside the scope are dropped too. Both are counted in `omitted.out_of_scope`.
+
+With no `-host`, `-l` or `--input`, raijin-ports scans what the scope names: every domain, every IP, and every address of ranges up to a /16, minus exclusions. A wildcard names no host and a larger range is too big to sweep at once, so for each one `next` gives the command to run first (`raijin-subs` for a wildcard, `-host` with the range split into /16s for a larger range).
 
 `--input` reads naabu JSONL, naabu's text output (`host:port` per line), nmap XML (`-oX`), or a file with all of them, like the `raw` file. A replay never runs an engine: services are checked when the input has nmap output, and otherwise every port is listed with a guess from its number.
 
@@ -193,7 +196,7 @@ The Raijin banner is **off by default**, so normal runs stay small. `--banner` p
 | Flag | Default | |
 |---|---|---|
 | `--scope` | (required) | scope file |
-| `-host` / `-l` / `--input` | | hosts, IPs or CIDRs, comma-separated (repeatable) / target file / existing naabu and nmap output (repeatable) |
+| `-host` / `-l` / `--input` | every host the scope names | hosts, IPs or CIDRs, comma-separated (repeatable) / target file / existing naabu and nmap output (repeatable) |
 | `-p`, `--top-ports` | naabu's top 100 | naabu `-p` / `-tp` |
 | `--rate`, `--threads`, `--timeout` | | naabu `-rate` / `-c` / `-timeout` (milliseconds) |
 | `--no-services` | false | only find open ports; do not run nmap |

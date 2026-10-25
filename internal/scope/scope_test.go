@@ -1,6 +1,9 @@
 package scope
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestAllowed(t *testing.T) {
 	sc, err := Parse([]string{
@@ -37,6 +40,35 @@ func TestAllowed(t *testing.T) {
 		if got := sc.Allowed(tt.target); got != tt.want {
 			t.Errorf("Allowed(%q) = %v, want %v", tt.target, got, tt.want)
 		}
+	}
+}
+
+func TestTargets(t *testing.T) {
+	sc, err := Parse([]string{
+		"example.com",
+		"*.example.com",
+		"api.example.com",
+		"!admin.example.com",
+		"admin.example.com",
+		"example.com",
+		"10.0.0.0/30",
+		"!10.0.0.2",
+		"192.0.2.10",
+		"172.16.0.0/16",
+		"10.0.0.0/8",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	targets, wildcards, ranges := sc.Targets()
+	if got := strings.Join(targets, ","); got != "example.com,api.example.com,10.0.0.0/30,192.0.2.10,172.16.0.0/16" {
+		t.Errorf("targets = %s", got)
+	}
+	if strings.Join(wildcards, ",") != "*.example.com" {
+		t.Errorf("wildcards = %v", wildcards)
+	}
+	if strings.Join(ranges, ",") != "10.0.0.0/8" {
+		t.Errorf("ranges larger than a /16 are not returned as targets: %v", ranges)
 	}
 }
 

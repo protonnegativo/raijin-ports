@@ -43,7 +43,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("raijin-ports", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	var hosts, inputs multi
-	fs.Var(&hosts, "host", "host, IP or CIDR to scan, comma-separated (repeatable)")
+	fs.Var(&hosts, "host", "host, IP or CIDR to scan, comma-separated (repeatable; default: every host the scope names)")
 	list := fs.String("l", "", "file with one host, IP or CIDR per line")
 	scopeFile := fs.String("scope", "", "scope file (required): domains, *.wildcards, IPs, CIDRs, !exclusions")
 	ports := fs.String("p", "", "ports to scan (naabu -p): 22,80,443 or 1-65535 (default: naabu's top 100)")
@@ -65,7 +65,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 	showVersion := fs.Bool("version", false, "print the version")
 	showBanner := fs.Bool("banner", false, "print the Raijin banner to stderr (off by default to keep output small)")
 	fs.Usage = func() {
-		fmt.Fprintf(stderr, "usage: raijin-ports --scope scope.txt (-host target | -l targets.txt | --input results) [flags] [-- extra naabu args]\n\n")
+		fmt.Fprintf(stderr, "usage: raijin-ports --scope scope.txt [-host target | -l targets.txt | --input results] [flags] [-- extra naabu args]\n\nWith no targets it scans every host the scope names.\n\n")
 		fs.PrintDefaults()
 	}
 	if err := fs.Parse(args); err != nil {
@@ -135,12 +135,31 @@ func run(args []string, stdout, stderr io.Writer) int {
 			}
 			hosts = append(hosts, lines...)
 		}
-		targets, err := filter(hosts, sc, res.Omitted)
+		omitted := res.Omitted
+		if len(hosts) == 0 {
+			// no targets given: scan what the scope names; its own exclusions are not omitted targets
+			var wildcards, ranges []string
+			hosts, wildcards, ranges = sc.Targets()
+			for _, w := range wildcards {
+				res.Next = append(res.Next, "raijin-subs --scope "+*scopeFile+" -d "+strings.TrimPrefix(w, "*.")+", then raijin-ports --scope "+*scopeFile+" -l <live hosts> to cover "+w)
+			}
+			for _, r := range ranges {
+				res.Next = append(res.Next, "split "+r+" into /16 ranges and pass each with raijin-ports --scope "+*scopeFile+" -host <range> to cover "+r)
+			}
+			omitted = map[string]int{}
+		}
+		targets, err := filter(hosts, sc, omitted)
 		if err != nil {
 			fmt.Fprintln(stderr, "raijin-ports:", err)
 			return 1
 		}
 		if len(targets) == 0 {
+			if len(res.Next) > 0 {
+				res.Summary = "the scope names no single host to scan"
+				res.Target = *scopeFile
+				write(stdout, &res, *format, *pretty)
+				return 1
+			}
 			fmt.Fprintln(stderr, "raijin-ports: no targets in scope")
 			return 1
 		}
