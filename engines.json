@@ -1,4 +1,10 @@
 {
-  "naabu": {"version": "2.6.1", "go": "github.com/projectdiscovery/naabu/v2/cmd/naabu"},
-  "nmap": {"version": "7.94", "system": "nmap"}
+  "naabu": {
+    "version": "2.6.1",
+    "go": "github.com/projectdiscovery/naabu/v2/cmd/naabu"
+  },
+  "nmap": {
+    "version": "7.98",
+    "system": "nmap"
+  }
 }
