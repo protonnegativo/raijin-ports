@@ -1,0 +1,156 @@
+name: Engine drift
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+    inputs:
+      naabu:
+        description: naabu version to test (latest or X.Y.Z)
+        default: latest
+      nmap:
+        description: nmap version to test (latest, or an apt version of the nmap package)
+        default: latest
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    # the LIVE benchmark scans 27 lab hosts on 1000 ports, then runs nmap -sV on 200 tcpwrapped ports
+    timeout-minutes: 45
+    env:
+      GH_TOKEN: ${{ github.token }}
+      NAABU_VERSION: ${{ inputs.naabu || 'latest' }}
+      NMAP_VERSION: ${{ inputs.nmap || 'latest' }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Install engines
+        run: |
+          sudo apt-get update
+          nmap_pkg=$(jq -r .nmap.system engines.json)
+          if [ "$NMAP_VERSION" = latest ]; then
+            sudo apt-get install -y libpcap-dev "$nmap_pkg"
+          else
+            sudo apt-get install -y libpcap-dev "$nmap_pkg=$NMAP_VERSION"
+          fi
+          v=$NAABU_VERSION
+          case "$v" in latest) ;; v*) ;; *) v=v$v ;; esac
+          go install "$(jq -r .naabu.go engines.json)@$v"
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+      - name: Installed versions
+        id: versions
+        run: |
+          ver() { "$@" 2>&1 | grep -oE '[0-9]+\.[0-9]+(\.[0-9]+)?' | head -1; }
+          naabu=$(ver naabu -version -duc)
+          nmap=$(ver nmap --version)
+          echo "naabu $naabu (tested $(jq -r .naabu.version engines.json))"
+          echo "nmap $nmap (tested $(jq -r .nmap.version engines.json))"
+          echo "naabu=$naabu" >> "$GITHUB_OUTPUT"
+          echo "nmap=$nmap" >> "$GITHUB_OUTPUT"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install tiktoken
+      - name: LIVE benchmark
+        id: bench
+        env:
+          LIVE: "1"
+          PY: python3
+        run: |
+          W=$RUNNER_TEMP/live
+          status=0
+          bench/run.sh "$W" 2>&1 | tee "$RUNNER_TEMP/bench.log" || status=1
+          grep 'missing from output' "$RUNNER_TEMP/bench.log" > "$RUNNER_TEMP/verify.txt" || status=1
+          if grep -v ' 0 missing from output' "$RUNNER_TEMP/verify.txt"; then status=1; fi
+          if grep -h -o '{"kind":"engine_format"[^}]*}' "$W"/*.live.json >> "$RUNNER_TEMP/verify.txt" 2>/dev/null; then
+            echo "engine_format error in the LIVE run"; status=1
+          fi
+          exit $status
+      - name: Keep the LIVE workdir
+        if: always()
+        run: |
+          mkdir -p "$RUNNER_TEMP/live"
+          cp -r bench/fixtures "$RUNNER_TEMP/live/fixtures" || true
+          cp "$RUNNER_TEMP/bench.log" "$RUNNER_TEMP/live/" || true
+          # the PR below must not carry the refreshed fixtures
+          git checkout -- bench/fixtures
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-bench
+          path: ${{ runner.temp }}/live
+          retention-days: 14
+      - name: Open or update the drift issue
+        if: failure()
+        env:
+          NAABU: ${{ steps.versions.outputs.naabu }}
+          NMAP: ${{ steps.versions.outputs.nmap }}
+        run: |
+          gh label create engine-drift --color B60205 --description "An engine update broke raijin-ports" 2>/dev/null || true
+          {
+            echo "The LIVE benchmark failed with naabu ${NAABU:-unknown} and nmap ${NMAP:-unknown}."
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/verify.txt" 2>/dev/null || tail -n 30 "$RUNNER_TEMP/bench.log" 2>/dev/null || echo "no benchmark output; see the run"
+            echo '```'
+            echo
+            echo "Run: $RUN_URL"
+          } > "$RUNNER_TEMP/issue.md"
+          n=$(gh issue list --label engine-drift --state open --json number --jq '.[0].number')
+          if [ -n "$n" ]; then
+            gh issue comment "$n" --body-file "$RUNNER_TEMP/issue.md"
+          else
+            gh issue create --title "Engine drift: naabu ${NAABU:-unknown}, nmap ${NMAP:-unknown}" --label engine-drift --body-file "$RUNNER_TEMP/issue.md"
+          fi
+      - name: Open or update the bump PR
+        env:
+          NAABU: ${{ steps.versions.outputs.naabu }}
+          NMAP: ${{ steps.versions.outputs.nmap }}
+        run: |
+          changes=() title=() branch=()
+          for e in naabu nmap; do
+            case $e in naabu) new=$NAABU ;; nmap) new=$NMAP ;; esac
+            old=$(jq -r ".$e.version" engines.json)
+            [ -n "$new" ] && [ "$new" != "$old" ] || continue
+            # only newer versions are bumped
+            [ "$(printf '%s\n%s\n' "$old" "$new" | sort -V | tail -1)" = "$new" ] || continue
+            jq --arg e "$e" --arg v "$new" '.[$e].version = $v' engines.json > engines.tmp && mv engines.tmp engines.json
+            changes+=("- $e $old → $new")
+            title+=("$e $new")
+            branch+=("$e-$new")
+          done
+          [ ${#changes[@]} -gt 0 ] || { echo "engines.json is up to date"; exit 0; }
+          b="engine-bump/$(IFS=-; echo "${branch[*]}")"
+          t="Test with $(printf '%s, ' "${title[@]}" | sed 's/, $//')"
+          {
+            printf '%s\n' "${changes[@]}"
+            echo
+            echo "The LIVE benchmark passed with these versions:"
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/verify.txt"
+            echo '```'
+            echo
+            echo "The refreshed fixtures are in the run's live-bench artifact, not in this PR: BENCHMARK.md numbers come from the committed fixtures."
+            echo
+            echo "Run: $RUN_URL"
+          } > "$RUNNER_TEMP/pr.md"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$b"
+          git add engines.json
+          git commit -m "$t"
+          git push --force origin "$b"
+          if gh pr view "$b" --json state --jq .state 2>/dev/null | grep -q OPEN; then
+            gh pr edit "$b" --title "$t" --body-file "$RUNNER_TEMP/pr.md"
+          else
+            gh pr create --head "$b" --title "$t" --body-file "$RUNNER_TEMP/pr.md"
+          fi
