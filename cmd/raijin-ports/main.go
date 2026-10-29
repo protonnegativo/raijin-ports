@@ -158,7 +158,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		res.Target = *scopeFile
 		res.Summary = "invalid scope file, nothing scanned"
 		write(stdout, &res, *format, *pretty)
-		return 1
+		return 2
 	}
 	opt := reduce.Defaults()
 	opt.MaxItems = *maxItems

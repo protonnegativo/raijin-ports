@@ -468,8 +468,11 @@ func TestInvalidScopeIsStructuredAndNothingRuns(t *testing.T) {
 			}
 			var out, errb bytes.Buffer
 			code := run([]string{"--scope", p, "-host", "10.0.0.5", "--naabu", nb, "--nmap", nm, "--raw", filepath.Join(t.TempDir(), "raw.txt")}, &out, &errb)
-			if code == 0 {
-				t.Fatalf("an invalid scope must exit non-zero: %s", out.String())
+			if code != 2 {
+				t.Fatalf("an invalid scope must exit 2, got %d: %s", code, out.String())
+			}
+			if !strings.HasPrefix(out.String(), `{"schema_version":1,`) {
+				t.Errorf("stdout must start with the schema_version envelope: %.60s", out.String())
 			}
 			var res output
 			if err := json.Unmarshal(out.Bytes(), &res); err != nil {
