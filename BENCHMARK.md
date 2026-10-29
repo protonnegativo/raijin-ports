@@ -23,8 +23,8 @@ Reproduce from the saved engine output: `bench/run.sh`. Start the lab, rescan it
 |---|---:|---:|---:|
 | naabu `-json` + nmap `-oX` | 110,550 | 41,933 | 1× |
 | naabu text + nmap text | 16,685 | 6,981 | 6.0× |
-| **raijin-ports JSON (default)** | 1,064 | **447** | **94×** |
-| raijin-ports `--pretty` | 1,644 | 615 | 68× |
+| **raijin-ports JSON (default)** | 1,100 | **459** | **91×** |
+| raijin-ports `--pretty` | 1,684 | 630 | 67× |
 | raijin-ports `--format table` | 304 | 108 | 388× |
 
 ## Scenario 2: findings
@@ -40,8 +40,8 @@ Reproduce from the saved engine output: `bench/run.sh`. Start the lab, rescan it
 |---|---:|---:|---:|
 | naabu `-json` + nmap `-oX` | 13,383 | 5,151 | 1× |
 | naabu text + nmap text | 3,184 | 1,175 | 4.4× |
-| **raijin-ports JSON (default)** | 2,382 | **768** | **6.7×** |
-| raijin-ports `--pretty` | 3,516 | 1,135 | 4.5× |
+| **raijin-ports JSON (default)** | 2,418 | **780** | **6.6×** |
+| raijin-ports `--pretty` | 3,556 | 1,150 | 4.5× |
 | raijin-ports `--format table` | 900 | 315 | 16× |
 
 In both scenarios the raijin-ports JSON includes about 10 tokens for `target`, the path of the replayed fixture. A live run writes the targets there and adds about 18 tokens for `raw`.
@@ -66,10 +66,10 @@ What the JSON leaves out stays in `raw`, which raijin-ports saves to disk: times
 
 ## Reading the numbers
 
-- **Against the engines' JSON and XML**, the structured output an agent would parse, raijin-ports uses **94×** fewer tokens on the noisy run and **6.7×** fewer on the findings run. nmap's XML repeats the state, the reason and the CPEs on every port, and the scan metadata on every run; naabu's JSON repeats its field names and a timestamp on every line, and writes every port twice.
+- **Against the engines' JSON and XML**, the structured output an agent would parse, raijin-ports uses **91×** fewer tokens on the noisy run and **6.6×** fewer on the findings run. nmap's XML repeats the state, the reason and the CPEs on every port, and the scan metadata on every run; naabu's JSON repeats its field names and a timestamp on every line, and writes every port twice.
 - **Against the engines' text output**, the gap depends on the run:
-  - noisy: **15.6× smaller** (6,981 → 447);
-  - findings: **1.5× smaller** (1,175 → 768).
+  - noisy: **15.2× smaller** (6,981 → 459);
+  - findings: **1.5× smaller** (1,175 → 780).
 
   When many hosts share the same ports, nmap's text repeats one block per host and raijin-ports writes the ports once with every host. When most ports are different services, both outputs list each one once, and raijin-ports pays for field names and titles; in exchange the agent gets the findings ranked, with a severity, and the hosts with the same services joined.
 - **The output stays bounded.** On a scan too big for `--max-bytes`, raijin-ports cuts the least important data first: group hosts, then groups, then extra locations of low-ranked findings, then low-ranked findings. Every cut is counted in `omitted`, and `next` points to the raw file. The engines' output has no upper bound.
@@ -81,6 +81,6 @@ o200k tokens, on the same fixtures:
 | Version | Scenario 1 | Scenario 2 | Lossless? |
 |---|---:|---:|---|
 | any port only one host has is an `outlier` | 2,662 | 768 | yes |
-| **no outliers on `tcpwrapped`, closed, or hosts with 32+ open ports** (current) | **447** | **768** | **yes** |
+| **no outliers on `tcpwrapped`, closed, or hosts with 32+ open ports** (current) | **459** | **780** | **yes** |
 
 In the first version the 200 ports of the closer were 200 outlier locations in one finding; they are noise from one host that answers on every port, and are now one group with one range.

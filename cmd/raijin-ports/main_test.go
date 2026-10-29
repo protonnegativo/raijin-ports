@@ -150,14 +150,36 @@ func TestUsageErrorsExitOne(t *testing.T) {
 	if code := run([]string{"--input", sample}, &out, &errb); code != 1 {
 		t.Errorf("no --scope: exit %d, want 1", code)
 	}
-	if code := run([]string{"--scope", scopeFile(t), "-host", "192.0.2.1"}, &out, &errb); code != 1 {
-		t.Errorf("no target in scope: exit %d, want 1", code)
-	}
 	if code := run([]string{"--scope", scopeFile(t), "-host", "10.0.0.0/8"}, &out, &errb); code != 1 {
 		t.Errorf("a range too large: exit %d, want 1", code)
 	}
 	if code := run([]string{"--scope", scopeFile(t), "--nope"}, &out, &errb); code != 1 {
 		t.Errorf("unknown flag: exit %d, want 1", code)
+	}
+	if out.Len() != 0 {
+		t.Errorf("a usage error prints no JSON on stdout: %q", out.String())
+	}
+}
+
+// Every path that prints the JSON result and fails exits 2, so raijin-mcp keeps the structured error.
+func TestStructuredFailuresExitTwo(t *testing.T) {
+	dir := t.TempDir()
+	wild := filepath.Join(dir, "wild.txt")
+	if err := os.WriteFile(wild, []byte("*.example.com\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cases := map[string][]string{
+		"no target in scope":  {"--scope", scopeFile(t), "-host", "192.0.2.1"},
+		"scope names no host": {"--scope", wild},
+	}
+	for name, args := range cases {
+		var out, errb bytes.Buffer
+		if code := run(args, &out, &errb); code != 2 {
+			t.Errorf("%s: exit %d, want 2", name, code)
+		}
+		if !strings.HasPrefix(out.String(), `{"schema_version":1,`) {
+			t.Errorf("%s: stdout = %.60q", name, out.String())
+		}
 	}
 }
 
@@ -428,6 +450,83 @@ func TestBuildVersion(t *testing.T) {
 		if got := buildVersion(c.info, c.ok); got != c.want {
 			t.Errorf("buildVersion = %q, want %q", got, c.want)
 		}
+	}
+}
+
+func TestReleaseVersionWinsOverBuildInfo(t *testing.T) {
+	old := releaseVersion
+	t.Cleanup(func() { releaseVersion = old })
+	releaseVersion = "v9.9.9"
+	if got := buildVersion(&debug.BuildInfo{Main: debug.Module{Version: "v0.1.3"}}, true); got != "v9.9.9" {
+		t.Errorf("buildVersion = %q, want v9.9.9", got)
+	}
+	if got := buildVersion(nil, false); got != "v9.9.9" {
+		t.Errorf("buildVersion without build info = %q, want v9.9.9", got)
+	}
+}
+
+func TestOutputStartsWithSchemaVersion(t *testing.T) {
+	var out, errb bytes.Buffer
+	if code := run([]string{"--scope", scopeFile(t), "--input", sample}, &out, &errb); code != 0 {
+		t.Fatalf("exit %d: %s", code, errb.String())
+	}
+	if !strings.HasPrefix(out.String(), `{"schema_version":1,"tool":"raijin-ports",`) {
+		t.Errorf("output must start with schema_version: %.80s", out.String())
+	}
+}
+
+func TestInvalidScopeIsStructuredAndNothingRuns(t *testing.T) {
+	nb, nm, log := fakeEngines(t)
+	cases := []struct{ name, scope, kind, hint string }{
+		{"port in rule", "example.com\nexample.com:443\n", "scope", "line 2: port in rule 'example.com:443'"},
+		{"CIDR with host bits", "10.0.0.7/24\n", "scope", "line 1: CIDR has host bits set '10.0.0.7/24'"},
+		{"no include rules", "!example.com\n", "scope", "no include rules"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			p := filepath.Join(t.TempDir(), "scope.txt")
+			if err := os.WriteFile(p, []byte(c.scope), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			var out, errb bytes.Buffer
+			code := run([]string{"--scope", p, "-host", "10.0.0.5", "--naabu", nb, "--nmap", nm, "--raw", filepath.Join(t.TempDir(), "raw.txt")}, &out, &errb)
+			if code != 2 {
+				t.Fatalf("an invalid scope must exit 2, got %d: %s", code, out.String())
+			}
+			if !strings.HasPrefix(out.String(), `{"schema_version":1,`) {
+				t.Errorf("stdout must start with the schema_version envelope: %.60s", out.String())
+			}
+			var res output
+			if err := json.Unmarshal(out.Bytes(), &res); err != nil {
+				t.Fatalf("stdout must be the JSON result: %v: %q", err, out.String())
+			}
+			if res.Summary != "invalid scope file, nothing scanned" || len(res.Errors) == 0 {
+				t.Fatalf("summary/errors: %+v", res)
+			}
+			if res.Errors[0].Kind != c.kind || !strings.Contains(res.Errors[0].Hint, c.hint) {
+				t.Errorf("error = %+v, want kind %q and hint containing %q", res.Errors[0], c.kind, c.hint)
+			}
+			if b, _ := os.ReadFile(log); len(b) != 0 {
+				t.Errorf("no engine may run with an invalid scope, naabu got %q", b)
+			}
+		})
+	}
+}
+
+func TestStateMarksNewFindingsAcrossRuns(t *testing.T) {
+	st := filepath.Join(t.TempDir(), "state.json")
+	runOnce := func() string {
+		var out, errb bytes.Buffer
+		if code := run([]string{"--scope", scopeFile(t), "--input", sample, "--state", st}, &out, &errb); code != 0 {
+			t.Fatalf("exit %d: %s", code, errb.String())
+		}
+		return out.String()
+	}
+	if first := runOnce(); !strings.Contains(first, `"new":true`) || !strings.Contains(first, "8 new") {
+		t.Errorf("first run: every finding is new: %s", first)
+	}
+	if second := runOnce(); strings.Contains(second, `"new":true`) || !strings.Contains(second, "0 new") {
+		t.Errorf("second run: nothing is new: %s", second)
 	}
 }
 

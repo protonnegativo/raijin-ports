@@ -16,21 +16,28 @@ import (
 	"runtime/debug"
 	"strings"
 
+	"github.com/protonnegativo/raijin-core/scope"
+	"github.com/protonnegativo/raijin-core/state"
 	"github.com/protonnegativo/raijin-ports/internal/banner"
 	"github.com/protonnegativo/raijin-ports/internal/engine"
 	"github.com/protonnegativo/raijin-ports/internal/naabu"
 	"github.com/protonnegativo/raijin-ports/internal/nmap"
 	"github.com/protonnegativo/raijin-ports/internal/reduce"
 	"github.com/protonnegativo/raijin-ports/internal/schema"
-	"github.com/protonnegativo/raijin-ports/internal/scope"
-	"github.com/protonnegativo/raijin-ports/internal/state"
 )
 
 // version is the release the binary was installed at (go install ...@vX.Y.Z or @latest), or "dev" with the
 // VCS revision for a local build.
 var version = buildVersion(debug.ReadBuildInfo())
 
+// releaseVersion is set by the release build (-ldflags "-X main.releaseVersion=v1.2.3") and wins over the
+// build info.
+var releaseVersion string
+
 func buildVersion(info *debug.BuildInfo, ok bool) string {
+	if releaseVersion != "" {
+		return releaseVersion
+	}
 	if !ok {
 		return "dev"
 	}
@@ -134,12 +141,6 @@ func run(args []string, stdout, stderr io.Writer) int {
 		fmt.Fprintln(stderr, "raijin-ports: --scope is required")
 		return 1
 	}
-	sc, err := scope.Load(*scopeFile)
-	if err != nil {
-		fmt.Fprintln(stderr, "raijin-ports: scope:", err)
-		return 1
-	}
-
 	res := schema.Result{
 		Tool:     "raijin-ports",
 		Version:  version,
@@ -149,6 +150,15 @@ func run(args []string, stdout, stderr io.Writer) int {
 		Errors:   []schema.Error{},
 		Next:     []string{},
 		Budget:   schema.Budget{MaxItems: *maxItems, MaxBytes: *maxBytes},
+	}
+	sc, err := scope.Load(*scopeFile)
+	if err != nil {
+		// An invalid scope is an error the agent can fix, never a warning: stop before any engine runs.
+		res.Errors = append(res.Errors, scope.SchemaErrors(err)...)
+		res.Target = *scopeFile
+		res.Summary = "invalid scope file, nothing scanned"
+		write(stdout, &res, *format, *pretty)
+		return 2
 	}
 	opt := reduce.Defaults()
 	opt.MaxItems = *maxItems
@@ -197,7 +207,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		if len(hosts) == 0 {
 			// no targets given: scan what the scope names; its own exclusions are not omitted targets
 			var wildcards, ranges []string
-			hosts, wildcards, ranges = sc.Targets()
+			hosts, wildcards, ranges = sc.TargetsUpTo(maxCIDR)
 			for _, w := range wildcards {
 				res.Next = append(res.Next, "raijin-subs --scope "+*scopeFile+" -d "+strings.TrimPrefix(w, "*.")+", then raijin-ports --scope "+*scopeFile+" -l <live hosts> to cover "+w)
 			}
@@ -216,10 +226,13 @@ func run(args []string, stdout, stderr io.Writer) int {
 				res.Summary = "the scope names no single host to scan"
 				res.Target = *scopeFile
 				write(stdout, &res, *format, *pretty)
-				return 1
+				return 2
 			}
-			fmt.Fprintln(stderr, "raijin-ports: no targets in scope")
-			return 1
+			res.Errors = append(res.Errors, schema.Error{Kind: "no_targets", Hint: "every target is outside the scope; pass a host, IP or CIDR the scope allows"})
+			res.Summary = "no targets in scope, nothing scanned"
+			res.Target = *scopeFile
+			write(stdout, &res, *format, *pretty)
+			return 2
 		}
 		res.Target = targetSummary(targets, res.Omitted["out_of_scope"])
 
@@ -297,7 +310,9 @@ func run(args []string, stdout, stderr io.Writer) int {
 		if err != nil {
 			res.Errors = append(res.Errors, schema.Error{Kind: "state_error", Hint: err.Error()})
 		} else {
-			newCount = st.Mark(res.Findings, out.AllLocations)
+			newCount = state.Mark(st, res.Findings, out.AllLocations,
+				func(f *schema.Finding) string { return f.Fingerprint },
+				func(f *schema.Finding) { f.New = true })
 			if err := st.Save(*statePath); err != nil {
 				res.Errors = append(res.Errors, schema.Error{Kind: "state_error", Hint: err.Error()})
 			}

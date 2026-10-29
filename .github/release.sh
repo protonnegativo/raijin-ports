@@ -31,4 +31,6 @@ git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 git tag -a "$tag" -m "$tag"
 git push origin "$tag"
 gh release create "$tag" --generate-notes --verify-tag
+# Events created with GITHUB_TOKEN do not start other workflows, so start the binaries build here.
+gh workflow run goreleaser.yml -f tag="$tag"
 echo "released $tag"

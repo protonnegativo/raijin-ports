@@ -6,10 +6,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/protonnegativo/raijin-core/scope"
 	"github.com/protonnegativo/raijin-ports/internal/naabu"
 	"github.com/protonnegativo/raijin-ports/internal/nmap"
 	"github.com/protonnegativo/raijin-ports/internal/schema"
-	"github.com/protonnegativo/raijin-ports/internal/scope"
 )
 
 func n(host, ip string, port int) naabu.Result {
