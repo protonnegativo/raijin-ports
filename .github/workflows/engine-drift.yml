@@ -57,7 +57,7 @@ jobs:
           echo "nmap $nmap (tested $(jq -r .nmap.version engines.json))"
           echo "naabu=$naabu" >> "$GITHUB_OUTPUT"
           echo "nmap=$nmap" >> "$GITHUB_OUTPUT"
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install tiktoken
