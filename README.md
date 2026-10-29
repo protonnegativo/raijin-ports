@@ -1,5 +1,11 @@
 # ⚡ Raijin Ports
 
+[![CI](https://github.com/protonnegativo/raijin-ports/actions/workflows/ci.yml/badge.svg)](https://github.com/protonnegativo/raijin-ports/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/protonnegativo/raijin-ports)](https://github.com/protonnegativo/raijin-ports/releases/latest)
+[![License: MIT](https://img.shields.io/github/license/protonnegativo/raijin-ports)](LICENSE)
+[![Go Reference](https://pkg.go.dev/badge/github.com/protonnegativo/raijin-ports.svg)](https://pkg.go.dev/github.com/protonnegativo/raijin-ports)
+[![Go Report Card](https://goreportcard.com/badge/github.com/protonnegativo/raijin-ports)](https://goreportcard.com/report/github.com/protonnegativo/raijin-ports)
+
 **naabu + nmap for AI agents: every open port with its service, hosts with the same ports collapsed, exposed databases and admin services ranked first.**
 
 `raijin-ports` is a tool of **Raijin**, an arsenal of offensive security tools built for AI agents. It runs [naabu](https://github.com/projectdiscovery/naabu) to find open ports and [nmap](https://nmap.org) service detection (`-sV`) on the ports it found, and returns the **Raijin Schema**: one compact JSON where hosts with the same open ports and services share one group, exposed databases, admin APIs and remote admin services are ranked findings, a port only one host has open is flagged, and anything it had to cut is counted.
