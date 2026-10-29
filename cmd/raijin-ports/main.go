@@ -226,10 +226,13 @@ func run(args []string, stdout, stderr io.Writer) int {
 				res.Summary = "the scope names no single host to scan"
 				res.Target = *scopeFile
 				write(stdout, &res, *format, *pretty)
-				return 1
+				return 2
 			}
-			fmt.Fprintln(stderr, "raijin-ports: no targets in scope")
-			return 1
+			res.Errors = append(res.Errors, schema.Error{Kind: "no_targets", Hint: "every target is outside the scope; pass a host, IP or CIDR the scope allows"})
+			res.Summary = "no targets in scope, nothing scanned"
+			res.Target = *scopeFile
+			write(stdout, &res, *format, *pretty)
+			return 2
 		}
 		res.Target = targetSummary(targets, res.Omitted["out_of_scope"])
 

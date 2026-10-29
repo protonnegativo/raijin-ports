@@ -150,14 +150,36 @@ func TestUsageErrorsExitOne(t *testing.T) {
 	if code := run([]string{"--input", sample}, &out, &errb); code != 1 {
 		t.Errorf("no --scope: exit %d, want 1", code)
 	}
-	if code := run([]string{"--scope", scopeFile(t), "-host", "192.0.2.1"}, &out, &errb); code != 1 {
-		t.Errorf("no target in scope: exit %d, want 1", code)
-	}
 	if code := run([]string{"--scope", scopeFile(t), "-host", "10.0.0.0/8"}, &out, &errb); code != 1 {
 		t.Errorf("a range too large: exit %d, want 1", code)
 	}
 	if code := run([]string{"--scope", scopeFile(t), "--nope"}, &out, &errb); code != 1 {
 		t.Errorf("unknown flag: exit %d, want 1", code)
+	}
+	if out.Len() != 0 {
+		t.Errorf("a usage error prints no JSON on stdout: %q", out.String())
+	}
+}
+
+// Every path that prints the JSON result and fails exits 2, so raijin-mcp keeps the structured error.
+func TestStructuredFailuresExitTwo(t *testing.T) {
+	dir := t.TempDir()
+	wild := filepath.Join(dir, "wild.txt")
+	if err := os.WriteFile(wild, []byte("*.example.com\n"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cases := map[string][]string{
+		"no target in scope":  {"--scope", scopeFile(t), "-host", "192.0.2.1"},
+		"scope names no host": {"--scope", wild},
+	}
+	for name, args := range cases {
+		var out, errb bytes.Buffer
+		if code := run(args, &out, &errb); code != 2 {
+			t.Errorf("%s: exit %d, want 2", name, code)
+		}
+		if !strings.HasPrefix(out.String(), `{"schema_version":1,`) {
+			t.Errorf("%s: stdout = %.60q", name, out.String())
+		}
 	}
 }
 

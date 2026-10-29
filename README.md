@@ -187,7 +187,7 @@ What the reducer does:
 
   Every cut is counted in `omitted`, `budget.truncated` is set, and `next` points to the raw file. `--max-items` caps the number of findings (0, the default, keeps all).
 - **`schema_version`** is the first field of every result (currently `1`); it changes only when the shape of the JSON does.
-- **Exit codes:** 0 is ok. 2 is a structured error with the JSON result on stdout: an invalid scope file (`errors` has one `kind:"scope"` entry per invalid line, as `line N: ...`, and nothing is scanned) or a missing engine (`kind:"missing_engine"`). 1 is wrong usage (bad flag, missing argument) and prints to stderr.
+- **Exit codes:** 0 is ok. 2 is any failure that prints the JSON result on stdout: no target inside the scope (`kind:"no_targets"`), a scope that names no single host to scan, an invalid scope file (`errors` has one `kind:"scope"` entry per invalid line, as `line N: ...`, and nothing is scanned) or a missing engine (`kind:"missing_engine"`). 1 is wrong usage (bad flag, missing argument) and prints to stderr.
 - **Errors** say what to try next. If naabu is missing, nothing runs and the exit code is 2. If nmap is missing, every port is still listed with a guessed service, the hint is in `errors`, and the exit code is 2.
 
 Fields an agent can rebuild are left out to save tokens:
