@@ -18,17 +18,17 @@ Here are the same ports, with the same services, read by an agent (tokens, `o200
 
 ```
 Noisy: 27 hosts, 249 open ports, 22 hosts with the same two web ports
-  raijin-ports    ▏                          447 tokens
+  raijin-ports    ▏                          459 tokens
   engines text    ███▎                     6,981 tokens
   engines JSON    ████████████████████    41,933 tokens
 
 Findings: 6 hosts, 16 open ports, 9 findings (5 high, 3 medium, 1 low)
-  raijin-ports    ███                        768 tokens
+  raijin-ports    ███                        780 tokens
   engines text    ████▌                    1,175 tokens
   engines JSON    ████████████████████     5,151 tokens
 ```
 
-raijin-ports reads **94×** fewer tokens than the engines' JSON (`naabu -json` plus `nmap -oX`) on the noisy run and **6.7×** fewer on the findings run. Each scenario's bars are drawn to scale against the JSON.
+raijin-ports reads **91×** fewer tokens than the engines' JSON (`naabu -json` plus `nmap -oX`) on the noisy run and **6.6×** fewer on the findings run. Each scenario's bars are drawn to scale against the JSON.
 
 - **Nothing is lost.** Every open port naabu found is in the output, with the service, product, version and extra information nmap identified on it. `bench/verify.py` checked 265 naabu results and 265 nmap services in the two scenarios and none were missing.
 - **The real problems come first.** Redis, MySQL, Elasticsearch and the Docker API are high, VNC, Telnet and SSH on an odd port are medium, and a port only one host has open is low. 22 web servers with the same two ports are one group.
@@ -36,7 +36,7 @@ raijin-ports reads **94×** fewer tokens than the engines' JSON (`naabu -json` p
 - **Output is bounded.** On a huge scan, `--max-bytes` cuts the least important data first and counts every cut.
 - **Details are one file away.** naabu's JSONL and nmap's XML are saved to one file, and its path is in `raw`. It holds the timestamps, CPEs, OS hints and the fingerprints of unidentified services, costs no tokens until the agent opens it, and replays with `--input`.
 
-Against the engines' text output (`naabu -silent` and nmap's normal output), raijin-ports is **15.6×** smaller on the noisy run and **1.5×** smaller on the findings run, where most ports are different services and both outputs list each one once. The text output also has no grouping, no ranking and no field names. Full method and numbers are in [BENCHMARK.md](BENCHMARK.md), and `bench/run.sh` reproduces them.
+Against the engines' text output (`naabu -silent` and nmap's normal output), raijin-ports is **15.2×** smaller on the noisy run and **1.5×** smaller on the findings run, where most ports are different services and both outputs list each one once. The text output also has no grouping, no ranking and no field names. Full method and numbers are in [BENCHMARK.md](BENCHMARK.md), and `bench/run.sh` reproduces them.
 
 ## Install
 
@@ -83,6 +83,7 @@ With no `-host`, `-l` or `--input`, raijin-ports scans what the scope names: eve
 
 ```json
 {
+  "schema_version": 1,
   "tool": "raijin-ports",
   "version": "0.1.0",
   "target": "bench/fixtures/findings/raw.txt",
@@ -185,6 +186,8 @@ What the reducer does:
   4. the lowest-ranked findings.
 
   Every cut is counted in `omitted`, `budget.truncated` is set, and `next` points to the raw file. `--max-items` caps the number of findings (0, the default, keeps all).
+- **`schema_version`** is the first field of every result (currently `1`); it changes only when the shape of the JSON does.
+- **Exit codes:** 0 is ok. 2 is a structured error with the JSON result on stdout: an invalid scope file (`errors` has one `kind:"scope"` entry per invalid line, as `line N: ...`, and nothing is scanned) or a missing engine (`kind:"missing_engine"`). 1 is wrong usage (bad flag, missing argument) and prints to stderr.
 - **Errors** say what to try next. If naabu is missing, nothing runs and the exit code is 2. If nmap is missing, every port is still listed with a guessed service, the hint is in `errors`, and the exit code is 2.
 
 Fields an agent can rebuild are left out to save tokens:
@@ -195,7 +198,7 @@ Fields an agent can rebuild are left out to save tokens:
 - `omitted`, `errors` and `next` appear only when they are not empty.
 - `budget` appears only when something was cut.
 
-The JSON is compact (one line) by default because indentation costs 38% to 48% more tokens in the benchmark; `--pretty` indents it. `--format table` prints a short human view of the same result; it lists finding locations but only counts group hosts.
+The JSON is compact (one line) by default because indentation costs 37% to 47% more tokens in the benchmark; `--pretty` indents it. `--format table` prints a short human view of the same result; it lists finding locations but only counts group hosts.
 
 The Raijin banner is **off by default**, so normal runs stay small. `--banner` prints it to **stderr** (never stdout, so the JSON is untouched), with the version taken from the binary. Colors are disabled when `NO_COLOR` is set or stderr is not a terminal.
 
@@ -229,7 +232,7 @@ go test ./...
 go vet ./...
 ```
 
-Standard library only. naabu runs as a subprocess with `-s c -json -silent -nc -duc -no-stdin`, and nmap with `-sT -sV -Pn -n -oX -` on the open ports only (`-sU` too for UDP ports, `-6` for IPv6), so the binary stays small and the engines can be updated on their own. IPs with the same open ports share one nmap run. The CLI tests run the live path offline with small fake engines; `testdata/sample.raw` is a synthetic run that hits every rule. `bench/lab.py` is the local lab of the benchmark: fake Redis, MySQL, Memcached, Elasticsearch, Docker API, SSH, VNC, Telnet and web servers on loopback addresses, each answering just enough for nmap to fingerprint it.
+The only Go dependency is [raijin-core](https://github.com/protonnegativo/raijin-core) (scope, schema envelope, state); everything else is the standard library. naabu runs as a subprocess with `-s c -json -silent -nc -duc -no-stdin`, and nmap with `-sT -sV -Pn -n -oX -` on the open ports only (`-sU` too for UDP ports, `-6` for IPv6), so the binary stays small and the engines can be updated on their own. IPs with the same open ports share one nmap run. The CLI tests run the live path offline with small fake engines; `testdata/sample.raw` is a synthetic run that hits every rule. `bench/lab.py` is the local lab of the benchmark: fake Redis, MySQL, Memcached, Elasticsearch, Docker API, SSH, VNC, Telnet and web servers on loopback addresses, each answering just enough for nmap to fingerprint it.
 
 ## Responsible use
 
